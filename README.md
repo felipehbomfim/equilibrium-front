@@ -74,3 +74,4 @@ Senha: 123456
 ## 📄 Licença
 
 Este projeto está licenciado sob a licença MIT. Consulte o arquivo [LICENSE](./LICENSE) para mais detalhes.# equilibrium-front
+# equilibrium-front
