@@ -7,22 +7,23 @@ import UserAddressCard from '@/components/pages/users/user-profile/UserAddressCa
 import {Skeleton} from "@mui/material";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {ArrowLeft} from "lucide-react";
+import { useSession } from "next-auth/react";
 
 export default function ProfilePage() {
     const { id } = useParams();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     useEffect(() => {
+        if (status !== "authenticated") return;
+
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const sessionUser = JSON.parse(sessionStorage.getItem('user'));
-                const userId = id != "me" ? id : sessionUser?.id;
-
+                const userId = id != "me" ? id : session?.user?.id;
                 if (!userId) return;
-
                 const res = await fetch(`https://dummyjson.com/users/${userId}`);
                 const json = await res.json();
                 setUser(json);
@@ -34,7 +35,7 @@ export default function ProfilePage() {
         };
 
         fetchUserData();
-    }, [id]);
+    }, [id, session, status]);
 
     if (loading) {
         return (

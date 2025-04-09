@@ -6,33 +6,83 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import {signIn} from "next-auth/react";
+import {toast} from "sonner";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [senhaError, setSenhaError] = useState(false);
   const [erro, setErro] = useState("");
   const router = useRouter();
+  const emailRef = useRef(null);
+  const senhaRef = useRef(null);
 
-  const handleLogin = (e) => {
+  useEffect(() => {
+    const emailValue = emailRef.current?.value;
+    const senhaValue = senhaRef.current?.value;
+
+    if (emailValue) setEmail(emailValue);
+    if (senhaValue) setSenha(senhaValue);
+  }, []);
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (e.target.value) setEmailError(false);
+  };
+
+  const handleSenhaChange = (e) => {
+    setSenha(e.target.value);
+    if (e.target.value) setSenhaError(false);
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === "admin@admin.com" && senha === "123456") {
-      const user = {
-        id: "1",
-        name: "Admin",
-        email: "admin@admin.com",
-      };
+    let valid = true;
 
-      Cookies.set("token", "fake-token", { expires: 7 });
-      sessionStorage.setItem("user", JSON.stringify(user));
+    if (!email) {
+      setEmailError(true);
+      valid = false;
+    }
 
-      router.push("/home");
-    } else {
-      setErro("Email ou senha inválidos");
+    if (!senha) {
+      setSenhaError(true);
+      valid = false;
+    }
+
+    if (!valid) {
+      toast.error("Preencha os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password: senha,
+        rememberMe: isChecked
+      });
+
+      if (!result) {
+        toast.error("Erro inesperado. Verifique a configuração.");
+        return;
+      }
+
+      if (result.ok) {
+        toast.success("Login realizado com sucesso!");
+        router.push("/home");
+      } else {
+        toast.error("Email ou senha inválidos");
+      }
+    } catch (err) {
+      console.error("Erro ao logar:", err);
+      toast.error("Erro ao tentar login.");
     }
   };
 
@@ -56,33 +106,44 @@ export default function SignInForm() {
                       Email <span className="text-error-500">*</span>{" "}
                     </Label>
                     <Input
-                        placeholder="exemplo@exemplo.com"
+                        ref={emailRef}
                         type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        defaultValue={email}
+                        error={emailError}
+                        onChange={handleEmailChange}
+                        placeholder="Digite seu e-mail"
+                        hint={emailError ? "O e-mail é obrigatório" : ""}
                     />
                   </div>
                   <div>
                     <Label>
                       Senha <span className="text-error-500">*</span>{" "}
                     </Label>
-                    <div className="relative">
-                      <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Digite sua senha"
-                          value={senha}
-                          onChange={(e) => setSenha(e.target.value)}
-                      />
-                      <span
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                      >
-                      {showPassword ? (
-                          <Eye className="w-5 h-5 text-brand-500" />
-                      ) : (
-                          <EyeOff className="w-5 h-5 text-brand-500" />
+                    <div>
+                      <div className="relative">
+                          <Input
+                              ref={senhaRef}
+                              type={showPassword ? "text" : "password"}
+                              defaultValue={senha}
+                              error={senhaError}
+                              onChange={handleSenhaChange}
+                              placeholder="Digite sua senha"
+                              className="pr-10"
+                          />
+                          <span
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
+                          >
+                          {showPassword ? (
+                              <Eye className="w-5 h-5 text-brand-500" />
+                          ) : (
+                              <EyeOff className="w-5 h-5 text-brand-500" />
+                          )}
+                        </span>
+                      </div>
+                      {senhaError && (
+                          <p className="mt-1.5 text-xs text-error-500">A senha é obrigatória</p>
                       )}
-                    </span>
                     </div>
                   </div>
 

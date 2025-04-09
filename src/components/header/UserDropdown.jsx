@@ -10,11 +10,13 @@ import {
   HelpCircle,
   LogOut
 } from 'lucide-react';
-import Cookies from "js-cookie";
 import {useRouter} from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const user = session?.user;
   const router = useRouter();
 
   function toggleDropdown(e) {
@@ -27,9 +29,20 @@ export default function UserDropdown() {
   }
 
   const handleLogout = () => {
-    Cookies.remove("token");
-    router.push("/signin");
+    signOut({ callbackUrl: `${window.location.origin}/signin` });
   };
+
+  if (status === "loading") {
+    return (
+        <div className="flex items-center gap-3 animate-pulse">
+          <div className="h-11 w-11 rounded-full bg-gray-300 dark:bg-gray-700" />
+          <div className="flex flex-col gap-1">
+            <div className="h-3 w-28 bg-gray-300 dark:bg-gray-700 rounded" />
+            <div className="h-2 w-20 bg-gray-300 dark:bg-gray-700 rounded" />
+          </div>
+        </div>
+    );
+  }
 
   return (
       <div className="relative">
@@ -45,9 +58,9 @@ export default function UserDropdown() {
               alt="User"
           />
         </span>
-
-          <span className="block mr-1 font-medium text-theme-sm">Felipe Bomfim</span>
-
+          <span className="block mr-1 font-medium text-theme-sm">
+            {user?.name}
+          </span>
           <svg
               className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
               width="18"
@@ -73,10 +86,10 @@ export default function UserDropdown() {
         >
           <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Felipe Bomfim
+            {user?.name}
           </span>
             <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            felipebomfimdev@gmail.com
+            {user?.email}
           </span>
           </div>
 

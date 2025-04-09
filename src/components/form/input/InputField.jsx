@@ -9,6 +9,7 @@ const Input = ({
                  onChange,
                  className = "",
                  min,
+                 ref,
                  max,
                  step,
                  disabled = false,
@@ -33,6 +34,7 @@ const Input = ({
   return (
       <div className="relative">
         <input
+            ref={ref}
             type={type}
             id={id}
             name={name}
