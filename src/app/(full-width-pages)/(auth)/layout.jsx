@@ -6,6 +6,10 @@ import Link from "next/link";
 import React from "react";
 import ThemeTogglerTwo from "@/components/common/ThemeTogglerTwo";
 
+export const metadata = {
+  title: 'Login | Equilibrium',
+};
+
 export default function AuthLayout({ children }) {
   return (
       <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
