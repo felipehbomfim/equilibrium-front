@@ -24,6 +24,11 @@ export const navItems = [
         name: 'Perfil',
         path: '/users/profile/me',
     },
+    {
+        icon: <BarChart3 size={18} />,
+        name: 'Gráficos',
+        path: '/graphics',
+    },
 ];
 
 export const othersItems = [

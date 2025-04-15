@@ -204,14 +204,16 @@ export default function DataTable({
                             <button
                                 key={page}
                                 onClick={() => onPageChange(page)}
-                                className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition ${
+                                className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition border 
+                                ${
                                     page === pageIndex
-                                        ? 'bg-blue-500/10 text-blue-500 dark:text-blue-400'
-                                        : 'text-gray-700 dark:text-gray-400 hover:bg-blue-500/10 hover:text-blue-500 dark:hover:text-blue-400'
+                                        ? 'bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
+                                        : 'text-gray-700 dark:text-gray-400 hover:bg-blue-500/10 hover:text-blue-500 dark:hover:text-blue-400 border-gray-200 dark:border-gray-600'
                                 }`}
                             >
                                 {page + 1}
                             </button>
+
                         ))
                     )}
                     <button
