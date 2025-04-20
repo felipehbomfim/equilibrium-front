@@ -68,6 +68,7 @@ Senha: 123456
 ## 🧑‍💻 Desenvolvedor
 
 - [@felipehbomfim](https://github.com/felipehbomfim)
+- [@EduardoFelixNeto](https://github.com/eduardofelixneto)
 
 ---
 
