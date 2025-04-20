@@ -2,6 +2,7 @@
 import { Users, Home, ChevronRight, List, Plus } from 'lucide-react';
 import UsersTable from "@/components/pages/users/UsersTable";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import CreateUserModal from "@/components/pages/users/CreateUserModal";
 
 export default function UsersContent() {
     return (
@@ -22,11 +23,7 @@ export default function UsersContent() {
                             <Users className="w-5 h-5"/>
                             Listagem de usuários
                         </h3>
-                        <button
-                            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                            <Plus className="w-4 h-4"/>
-                            Adicionar
-                        </button>
+                        <CreateUserModal />
                     </div>
                 </div>
                 <div className={`border-t border-gray-100 p-5 dark:border-gray-800 sm:p-6`}>
