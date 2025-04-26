@@ -40,6 +40,9 @@ npm install
 
 # Rode o projeto
 npm run dev
+
+# Inicie o db.json
+json-server --watch db.json --port 3001
 ```
 
 A aplicação estará disponível em `http://localhost:3000`.
@@ -69,7 +72,7 @@ Senha: 123456
 
 - [@felipehbomfim](https://github.com/felipehbomfim)
 - [@EduardoFelixNeto](https://github.com/eduardofelixneto)
-
+- [@VictorGabrielHilario](https://github.com/VictorGabrielHil)
 ---
 
 ## 📄 Licença
