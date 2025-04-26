@@ -13,6 +13,7 @@ export class Paciente extends Pessoa {
         this.altura = parseFloat(data.altura);
         this.idade = data.idade;
         this.queda = Boolean(data.queda);
+        this.email = data.email;
     }
 
     toJSON() {
@@ -27,7 +28,8 @@ export class Paciente extends Pessoa {
             peso: this.peso,
             altura: this.altura,
             idade: this.idade,
-            queda: this.queda
+            queda: this.queda,
+            email: this.email
         };
     }
 

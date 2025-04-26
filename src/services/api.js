@@ -29,5 +29,27 @@ export const api = {
         } catch (error) {
             throw new Error(`Erro ao cadastrar ${tipo}`);
         }
+    },
+
+    async cadastrarEndereco(dados) {
+        try {
+            const response = await fetch(`${API_URL}/enderecos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dados)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Erro ao cadastrar endereço:', error);
+            throw new Error('Erro ao cadastrar endereço: ' + error.message);
+        }
     }
 }; 
