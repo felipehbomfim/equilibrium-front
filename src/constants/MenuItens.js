@@ -3,7 +3,8 @@ import {
     User,
     Users,
     BarChart3,
-    List
+    List,
+    UserPlus
 } from 'lucide-react';
 
 export const navItems = [
@@ -17,6 +18,7 @@ export const navItems = [
         name: 'Usuários',
         subItems: [
             { name: 'Listagem', path: '/users', icon: <List size={16} /> },
+            { name: 'Cadastrar', path: '/users/register', icon: <UserPlus size={16} /> },
         ],
     },
     {
