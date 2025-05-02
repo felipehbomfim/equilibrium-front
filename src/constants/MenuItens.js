@@ -4,7 +4,8 @@ import {
     Users,
     BarChart3,
     List,
-    UserPlus
+    UserPlus,
+    Hospital
 } from 'lucide-react';
 
 export const navItems = [
@@ -30,6 +31,11 @@ export const navItems = [
         icon: <BarChart3 size={18} />,
         name: 'Gráficos',
         path: '/graphics',
+    },
+    {
+        icon: <Hospital size={18} />,
+        name: 'Unidade(s) de saúde',
+        path: '/healthUnit',
     },
 ];
 

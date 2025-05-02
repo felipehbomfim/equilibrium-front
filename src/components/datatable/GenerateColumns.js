@@ -31,6 +31,7 @@ export function generateColumns(config) {
     return config.map(col => ({
         accessorKey: col.accessorKey,
         enableSorting: !!col.enableSorting,
+        size: col.size || undefined,
         header: col.enableSorting
             ? ({ column }) => <SortableHeader column={column} title={col.title} />
             : col.title,

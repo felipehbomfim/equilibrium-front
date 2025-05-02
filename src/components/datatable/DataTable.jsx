@@ -118,6 +118,7 @@ export default function DataTable({
                                 <th
                                     key={header.id}
                                     className="border-b px-6 py-3 text-left font-medium text-gray-500 dark:text-gray-400"
+                                    style={{ width: header.column.columnDef.size }}
                                 >
                                     {flexRender(header.column.columnDef.header, header.getContext())}
                                 </th>

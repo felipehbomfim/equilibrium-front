@@ -52,6 +52,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.56.0",
+    "react-input-mask-next": "^3.0.0-alpha.12",
     "react-select": "^5.10.1",
     "recharts": "^2.15.2",
     "sonner": "^2.0.3",

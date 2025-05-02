@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001';
+const API_URL = 'http://20.201.114.238';
 
 export const api = {
     async cadastrarPessoa(dados) {
@@ -52,4 +52,5 @@ export const api = {
             throw new Error('Erro ao cadastrar endereço: ' + error.message);
         }
     }
+
 }; 
