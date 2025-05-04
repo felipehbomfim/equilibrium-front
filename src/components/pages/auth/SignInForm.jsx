@@ -4,38 +4,54 @@ import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
-import { ChevronLeft, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import React, {useEffect, useRef, useState} from "react";
-import Cookies from "js-cookie";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {signIn} from "next-auth/react";
-import {toast} from "sonner";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [email, setEmail] = useState("");
+  const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
-  const [emailError, setEmailError] = useState(false);
+  const [cpfError, setCpfError] = useState(false);
   const [senhaError, setSenhaError] = useState(false);
   const [erro, setErro] = useState("");
   const router = useRouter();
-  const emailRef = useRef(null);
+  const cpfRef = useRef(null);
   const senhaRef = useRef(null);
 
   useEffect(() => {
-    const emailValue = emailRef.current?.value;
+    const cpfValue = cpfRef.current?.value;
     const senhaValue = senhaRef.current?.value;
 
-    if (emailValue) setEmail(emailValue);
+    if (cpfValue) setCpf(cpfValue);
     if (senhaValue) setSenha(senhaValue);
   }, []);
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    if (e.target.value) setEmailError(false);
+  const handleCpfChange = (e) => {
+    let value = e.target.value;
+
+    value = value.replace(/\D/g, "");
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+    }
+
+    setCpf(value);
+    if (value) setCpfError(false);
   };
+
 
   const handleSenhaChange = (e) => {
     setSenha(e.target.value);
@@ -46,8 +62,10 @@ export default function SignInForm() {
     e.preventDefault();
     let valid = true;
 
-    if (!email) {
-      setEmailError(true);
+    const rawCpf = cpf.replace(/\D/g, "");
+
+    if (!rawCpf || rawCpf.length !== 11) {
+      setCpfError(true);
       valid = false;
     }
 
@@ -57,16 +75,16 @@ export default function SignInForm() {
     }
 
     if (!valid) {
-      toast.error("Preencha os campos obrigatórios.");
+      toast.error("Preencha os campos obrigatórios corretamente.");
       return;
     }
 
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        email,
+        cpf: rawCpf,
         password: senha,
-        rememberMe: isChecked
+        rememberMe: isChecked,
       });
 
       if (!result) {
@@ -78,7 +96,7 @@ export default function SignInForm() {
         toast.success("Login realizado com sucesso!");
         router.push("/home");
       } else {
-        toast.error("Email ou senha inválidos");
+        toast.error("CPF ou senha inválidos");
       }
     } catch (err) {
       console.error("Erro ao logar:", err);
@@ -95,7 +113,7 @@ export default function SignInForm() {
                 Login
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Digite seu e-mail e senha para realizar o seu login!
+                Digite seu CPF e senha para realizar o seu login!
               </p>
             </div>
             <div>
@@ -103,50 +121,49 @@ export default function SignInForm() {
                 <div className="space-y-6">
                   <div>
                     <Label>
-                      Email <span className="text-error-500">*</span>{" "}
+                      CPF <span className="text-error-500">*</span>{" "}
                     </Label>
                     <Input
-                        ref={emailRef}
-                        type="email"
-                        defaultValue={email}
-                        error={emailError}
-                        onChange={handleEmailChange}
-                        placeholder="Digite seu e-mail"
-                        hint={emailError ? "O e-mail é obrigatório" : ""}
+                        type="text"
+                        value={cpf}
+                        error={cpfError}
+                        onChange={handleCpfChange}
+                        placeholder="000.000.000-00"
                     />
+                    {cpfError && (
+                        <p className="mt-1.5 text-xs text-error-500">O CPF é obrigatório</p>
+                    )}
                   </div>
+
                   <div>
                     <Label>
                       Senha <span className="text-error-500">*</span>{" "}
                     </Label>
-                    <div>
-                      <div className="relative">
-                          <Input
-                              ref={senhaRef}
-                              type={showPassword ? "text" : "password"}
-                              defaultValue={senha}
-                              error={senhaError}
-                              onChange={handleSenhaChange}
-                              placeholder="Digite sua senha"
-                              className="pr-10"
-                          />
-                          <span
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
-                          >
-                          {showPassword ? (
-                              <Eye className="w-5 h-5 text-brand-500" />
-                          ) : (
-                              <EyeOff className="w-5 h-5 text-brand-500" />
-                          )}
-                        </span>
-                      </div>
-                      {senhaError && (
-                          <p className="mt-1.5 text-xs text-error-500">A senha é obrigatória</p>
-                      )}
+                    <div className="relative">
+                      <Input
+                          ref={senhaRef}
+                          type={showPassword ? "text" : "password"}
+                          value={senha}
+                          error={senhaError}
+                          onChange={handleSenhaChange}
+                          placeholder="Digite sua senha"
+                          className="pr-10"
+                      />
+                      <span
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
+                      >
+                                            {showPassword ? (
+                                                <Eye className="w-5 h-5 text-brand-500" />
+                                            ) : (
+                                                <EyeOff className="w-5 h-5 text-brand-500" />
+                                            )}
+                                        </span>
                     </div>
+                    {senhaError && (
+                        <p className="mt-1.5 text-xs text-error-500">A senha é obrigatória</p>
+                    )}
                   </div>
-
                   {erro && (
                       <p className="text-sm text-error-500 font-medium">{erro}</p>
                   )}
@@ -155,8 +172,8 @@ export default function SignInForm() {
                     <div className="flex items-center gap-3">
                       <Checkbox checked={isChecked} onChange={setIsChecked} />
                       <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Manter logado
-                    </span>
+                                            Manter logado
+                                        </span>
                     </div>
                     <Link
                         href="/reset-password"

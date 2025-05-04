@@ -8,6 +8,7 @@ import {Skeleton} from "@mui/material";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {ArrowLeft} from "lucide-react";
 import { useSession } from "next-auth/react";
+import { api } from "@/services/apiPerson";
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -23,10 +24,11 @@ export default function ProfilePage() {
             try {
                 setLoading(true);
                 const userId = id != "me" ? id : session?.user?.id;
+                console.log(userId);
                 if (!userId) return;
-                const res = await fetch(`https://dummyjson.com/users/${userId}`);
-                const json = await res.json();
-                setUser(json);
+                const response = await api.getPerson(userId);
+                console.log(response);
+                setUser(response);
             } catch (error) {
                 console.error('Erro ao buscar usuário:', error);
             } finally {

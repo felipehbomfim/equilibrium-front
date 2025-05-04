@@ -10,6 +10,11 @@ import { Pencil } from "lucide-react";
 
 export default function UserMetaCard({ user }) {
   const { isOpen, openModal, closeModal } = useModal();
+  const [firstName, lastName] = user?.name
+      ? user.name.split(' ').length > 1
+          ? [user.name.split(' ')[0], user.name.split(' ').slice(1).join(' ')]
+          : [user.name, 'Sem informações']
+      : ['Sem informações', 'Sem informações'];
 
   const handleSave = () => {
     console.log("Alterações salvas!");
@@ -31,16 +36,16 @@ export default function UserMetaCard({ user }) {
               </div>
               <div className="order-3 xl:order-2">
                 <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                  {user?.firstName} {user?.lastName}
+                  {user?.name}
                 </h4>
                 <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {user?.company?.title || "Cargo indefinido"}
+                    {user?.profile === "healthProfessional" ? "Profissional da saúde" : "Paciente"}
                   </p>
-                  <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {user?.address?.city}, {user?.address?.state}
-                  </p>
+                  {/*<div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>*/}
+                  {/*<p className="text-sm text-gray-500 dark:text-gray-400">*/}
+                  {/*  {user?.address?.city}, {user?.address?.state}*/}
+                  {/*</p>*/}
                 </div>
               </div>
               <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -63,21 +68,21 @@ export default function UserMetaCard({ user }) {
               <div>
                 <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Nome</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.firstName}
+                  {firstName}
                 </p>
               </div>
 
               <div>
                 <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Sobrenome</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.lastName}
+                  {lastName}
                 </p>
               </div>
 
               <div>
                 <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Email</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.email}
+                  {user?.email ?? "Sem informações"}
                 </p>
               </div>
 
@@ -91,7 +96,7 @@ export default function UserMetaCard({ user }) {
               <div className="lg:col-span-2">
                 <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Cargo</p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.company?.title || "Não informado"}
+                  {user?.profile === "healthProfessional" ? "Profissional da saúde" : "Paciente"}
                 </p>
               </div>
             </div>

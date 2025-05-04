@@ -10,6 +10,7 @@ const Input = ({
                  className = "",
                  min,
                  ref,
+                 value,
                  max,
                  step,
                  disabled = false,
@@ -39,6 +40,7 @@ const Input = ({
             id={id}
             name={name}
             placeholder={placeholder}
+            value={value}
             defaultValue={defaultValue}
             onChange={onChange}
             min={min}

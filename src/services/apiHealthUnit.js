@@ -1,4 +1,4 @@
-const API_URL = 'http://20.201.114.238';
+import API_URL from './api';
 
 export const api = {
     async createHealthUnit(dados) {
