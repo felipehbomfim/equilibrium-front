@@ -1,4 +1,3 @@
-// src/app/api/auth/[...nextauth]/auth.js
 import CredentialsProvider from "next-auth/providers/credentials";
 import API_URL from '@/services/api';
 
@@ -9,6 +8,7 @@ export const authOptions = {
             credentials: {
                 cpf: { label: "CPF", type: "text" },
                 password: { label: "Senha", type: "password" },
+                rememberMe: { label: "Lembrar-me", type: "boolean" },
             },
             async authorize(credentials) {
                 try {
@@ -20,7 +20,6 @@ export const authOptions = {
                             password: credentials.password,
                         }),
                     });
-                    console.log(response);
 
                     if (!response.ok) {
                         console.error('Erro ao autenticar:', await response.text());
@@ -36,6 +35,7 @@ export const authOptions = {
                             cpf: user.cpf,
                             token,
                             profile: user.profile,
+                            rememberMe: credentials.rememberMe === 'true',
                         };
                     } else {
                         return null;
@@ -49,7 +49,7 @@ export const authOptions = {
     ],
     session: {
         strategy: "jwt",
-        maxAge: 60 * 60 * 24 * 7, // 7 dias
+        maxAge: 60 * 60 * 24 * 7,
     },
     pages: {
         signIn: "/(full-width-pages)/(auth)/signin",
@@ -62,6 +62,10 @@ export const authOptions = {
                 token.cpf = user.cpf;
                 token.accessToken = user.token;
                 token.profile = user.profile;
+                token.rememberMe = user.rememberMe;
+
+                const maxAge = user.rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24;
+                token.exp = Math.floor(Date.now() / 1000) + maxAge;
             }
             return token;
         },
@@ -71,6 +75,7 @@ export const authOptions = {
             session.user.cpf = token.cpf;
             session.user.accessToken = token.accessToken;
             session.user.profile = token.profile;
+            session.user.rememberMe = token.rememberMe;
             return session;
         },
     },

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
+import React, { useEffect, useRef, useState } from "react";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ export default function SignInForm() {
   const [senha, setSenha] = useState("");
   const [cpfError, setCpfError] = useState(false);
   const [senhaError, setSenhaError] = useState(false);
-  const [erro, setErro] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // ⬅ novo estado
   const router = useRouter();
   const cpfRef = useRef(null);
   const senhaRef = useRef(null);
@@ -32,13 +32,8 @@ export default function SignInForm() {
   }, []);
 
   const handleCpfChange = (e) => {
-    let value = e.target.value;
-
-    value = value.replace(/\D/g, "");
-
-    if (value.length > 11) {
-      value = value.substring(0, 11);
-    }
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 11) value = value.substring(0, 11);
 
     if (value.length > 9) {
       value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
@@ -52,7 +47,6 @@ export default function SignInForm() {
     if (value) setCpfError(false);
   };
 
-
   const handleSenhaChange = (e) => {
     setSenha(e.target.value);
     if (e.target.value) setSenhaError(false);
@@ -61,7 +55,6 @@ export default function SignInForm() {
   const handleLogin = async (e) => {
     e.preventDefault();
     let valid = true;
-
     const rawCpf = cpf.replace(/\D/g, "");
 
     if (!rawCpf || rawCpf.length !== 11) {
@@ -78,6 +71,8 @@ export default function SignInForm() {
       toast.error("Preencha os campos obrigatórios corretamente.");
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const result = await signIn("credentials", {
@@ -101,6 +96,8 @@ export default function SignInForm() {
     } catch (err) {
       console.error("Erro ao logar:", err);
       toast.error("Erro ao tentar login.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,7 +118,7 @@ export default function SignInForm() {
                 <div className="space-y-6">
                   <div>
                     <Label>
-                      CPF <span className="text-error-500">*</span>{" "}
+                      CPF <span className="text-error-500">*</span>
                     </Label>
                     <Input
                         type="text"
@@ -137,7 +134,7 @@ export default function SignInForm() {
 
                   <div>
                     <Label>
-                      Senha <span className="text-error-500">*</span>{" "}
+                      Senha <span className="text-error-500">*</span>
                     </Label>
                     <div className="relative">
                       <Input
@@ -148,32 +145,29 @@ export default function SignInForm() {
                           onChange={handleSenhaChange}
                           placeholder="Digite sua senha"
                           className="pr-10"
+                          disabled={isLoading}
                       />
                       <span
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
                       >
-                                            {showPassword ? (
-                                                <Eye className="w-5 h-5 text-brand-500" />
-                                            ) : (
-                                                <EyeOff className="w-5 h-5 text-brand-500" />
-                                            )}
-                                        </span>
+                      {showPassword ? (
+                          <Eye className="w-5 h-5 text-brand-500" />
+                      ) : (
+                          <EyeOff className="w-5 h-5 text-brand-500" />
+                      )}
+                    </span>
                     </div>
                     {senhaError && (
                         <p className="mt-1.5 text-xs text-error-500">A senha é obrigatória</p>
                     )}
                   </div>
-                  {erro && (
-                      <p className="text-sm text-error-500 font-medium">{erro}</p>
-                  )}
-
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Checkbox checked={isChecked} onChange={setIsChecked} />
                       <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                                            Manter logado
-                                        </span>
+                      Manter logado
+                    </span>
                     </div>
                     <Link
                         href="/reset-password"
@@ -183,8 +177,13 @@ export default function SignInForm() {
                     </Link>
                   </div>
                   <div>
-                    <Button className="w-full" size="sm" type="submit">
-                      Logar
+                    <Button
+                        className="w-full"
+                        size="sm"
+                        type="submit"
+                        disabled={isLoading}
+                    >
+                      {isLoading ? "Carregando..." : "Logar"}
                     </Button>
                   </div>
                 </div>
