@@ -17,10 +17,7 @@ export const navItems = [
     {
         icon: <Users size={18} />,
         name: 'Usuários',
-        subItems: [
-            { name: 'Listagem', path: '/users', icon: <List size={16} /> },
-            { name: 'Cadastrar', path: '/users/register', icon: <UserPlus size={16} /> },
-        ],
+        path: '/users',
     },
     {
         icon: <User size={18} />,

@@ -1,9 +1,9 @@
 import API_URL from './api';
 
 export const api = {
-    async cadastrarPessoa(dados) {
+    async createPerson(dados) {
         try {
-            const response = await fetch(`${API_URL}/pessoas`, {
+            const response = await fetch(`${API_URL}/Person`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ export const api = {
         }
     },
 
-    async cadastrarPerfil(tipo, dados) {
+    async createProfile(tipo, dados) {
         try {
             const response = await fetch(`${API_URL}/${tipo}`, {
                 method: 'POST',
@@ -31,29 +31,21 @@ export const api = {
         }
     },
 
-    async cadastrarEndereco(dados) {
+    async getAllPersons() {
         try {
-            const response = await fetch(`${API_URL}/enderecos`, {
-                method: 'POST',
+            const response = await fetch(`${API_URL}/Person`, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(dados)
             });
-
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data;
+            return await response.json();
         } catch (error) {
-            console.error('Erro ao cadastrar endereço:', error);
-            throw new Error('Erro ao cadastrar endereço: ' + error.message);
+            throw new Error('Erro ao listar pessoas');
         }
     },
 
-    async getPerson(cpf) {
+    async getPersonByCpf(cpf) {
         try {
             const response = await fetch(`${API_URL}/Person/${cpf}`, {
                 method: 'GET',
@@ -73,5 +65,4 @@ export const api = {
             throw new Error('Erro ao buscar pessoa: ' + error.message);
         }
     }
-
-}; 
+};

@@ -3,6 +3,7 @@ import {generateColumns} from "@/components/datatable/GenerateColumns";
 import DataTable from "@/components/datatable/DataTable";
 import {useRouter} from "next/navigation";
 import {Search} from "lucide-react";
+import {api} from "@/services/apiPerson";
 
 export default function UsersTable() {
     const [data, setData] = useState([]);
@@ -14,57 +15,92 @@ export default function UsersTable() {
     const [sortBy, setSortBy] = useState(null); // ex: 'name'
     const [sortDir, setSortDir] = useState(null); // 'asc' ou 'desc'
     const columns = generateColumns([
-        { accessorKey: 'firstName', title: 'Nome', enableSorting: true },
-        { accessorKey: 'lastName', title: 'Sobrenome' },
-        { accessorKey: 'email', title: 'Email' },
-        { accessorKey: 'age', title: 'Idade', enableSorting: true },
-        {
-            accessorKey: 'actions',
-            title: 'Ações',
-            cell: ({ row }) => {
-                const router = useRouter();
-                const id = row.original.id;
-
-                return (
-                <button
-                    onClick={() => router.push(`/users/profile/${id}`)}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
-                    <Search size={14} />
-                    Visualizar
-                </button>
-                );
+            {
+                accessorKey: 'cpf',
+                title: 'CPF',
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const cpf = row.original.cpf;
+                    return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+                },
             },
-        },
-    ]);
+            {
+                accessorKey: 'name',
+                title: 'Nome',
+                enableSorting: true,
+            },
+            {
+                accessorKey: 'phone',
+                title: 'Telefone',
+            },
+            {
+                accessorKey: 'gender',
+                title: 'Sexo',
+                cell: ({ row }) => {
+                    const gender = row.original.gender;
+                    return gender === 'M' ? 'Masculino' : gender === 'F' ? 'Feminino' : gender;
+                },
+            },
+            {
+                accessorKey: 'profile',
+                title: 'Perfil',
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const perfil = row.original.profile;
+                    if (perfil === 'patient') return 'Paciente';
+                    if (perfil === 'researcher') return 'Pesquisador';
+                    if (perfil === 'healthProfessional') return 'Profissional de Saúde';
+                    return perfil;
+                },
+            },
+            {
+                accessorKey: 'createdAt',
+                title: 'Criado em',
+                cell: ({ row }) => {
+                    const date = new Date(row.original.createdAt);
+                    return date.toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
+                },
+            },
+        ]
+    );
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const endpoint = search
-                    ? 'https://dummyjson.com/users/search'
-                    : 'https://dummyjson.com/users';
+                const pessoas = await api.getAllPersons();
 
-                const params = new URLSearchParams({
-                    limit: pageSize.toString(),
-                    skip: (pageIndex * pageSize).toString(),
-                });
-
+                let filtradas = pessoas;
                 if (search) {
-                    params.set('q', search);
+                    const searchLower = search.toLowerCase();
+                    filtradas = pessoas.filter((pessoa) =>
+                        pessoa.name.toLowerCase().includes(searchLower) ||
+                        pessoa.cpf.toLowerCase().includes(searchLower) ||
+                        pessoa.profile.toLowerCase().includes(searchLower)
+                    );
                 }
 
-                if (sortBy && sortDir) {
-                    params.set('sortBy', sortBy);
-                    params.set('order', sortDir);
+                if (sortBy) {
+                    filtradas.sort((a, b) => {
+                        const aValue = a[sortBy];
+                        const bValue = b[sortBy];
+                        if (aValue < bValue) return sortDir === 'asc' ? -1 : 1;
+                        if (aValue > bValue) return sortDir === 'asc' ? 1 : -1;
+                        return 0;
+                    });
                 }
 
-                const url = `${endpoint}?${params.toString()}`;
-                const res = await fetch(url);
-                const json = await res.json();
+                const start = pageIndex * pageSize;
+                const paginadas = filtradas.slice(start, start + pageSize);
 
-                setData(json.users);
-                setTotal(json.total);
+                setData(paginadas);
+                setTotal(filtradas.length);
             } catch (error) {
                 console.error('Erro ao buscar dados:', error);
             } finally {

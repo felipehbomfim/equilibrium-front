@@ -1,40 +1,54 @@
-import { Pessoa } from './Pessoa';
-
-export class Paciente extends Pessoa {
+export class Paciente {
     constructor(data) {
-        super(data.nome, data.cpf, data.senha, data.telefone, data.sexo, 'paciente');
-        this.id = data.id;
-        this.cpf_paciente = data.cpf_paciente;
-        this.id_endereco = data.id_endereco;
-        this.data_nascimento = data.data_nascimento ? new Date(data.data_nascimento) : null;
-        this.escolaridade = data.escolaridade;
-        this.nivel_socio_economico = data.nivel_socio_economico;
-        this.peso = parseFloat(data.peso);
-        this.altura = parseFloat(data.altura);
-        this.idade = data.idade;
-        this.queda = Boolean(data.queda);
-        this.email = data.email;
+        this.cpf = data.cpf;
+        this.dateOfBirth = data.data_nascimento
+            ? new Date(data.data_nascimento).toISOString().split('T')[0]
+            : null;
+        this.educationLevel = data.escolaridade;
+        this.socioeconomicStatus = data.nivel_socio_economico;
+        this.cep = data.endereco_cep;
+        this.street = data.rua;
+        this.number = data.numero;
+        this.neighborhood = data.bairro;
+        this.city = data.cidade;
+        this.state = data.estado;
+        this.weight = data.peso ? parseFloat(data.peso) : null;
+        this.height = data.altura ? parseFloat(data.altura) : null;
+        this.age = data.data_nascimento ? this.calculateAge(data.data_nascimento) : null;
+        this.downFall = data.queda === 'true' || data.queda === true;
     }
 
     toJSON() {
         return {
-            ...super.toJSON(),
-            id: this.id,
-            cpf_paciente: this.cpf_paciente,
-            id_endereco: this.id_endereco,
-            data_nascimento: this.data_nascimento?.toISOString().split('T')[0],
-            escolaridade: this.escolaridade,
-            nivel_socio_economico: this.nivel_socio_economico,
-            peso: this.peso,
-            altura: this.altura,
-            idade: this.idade,
-            queda: this.queda,
-            email: this.email
+            cpf: this.cpf,
+            dateOfBirth: this.dateOfBirth,
+            educationLevel: this.educationLevel,
+            socioeconomicStatus: this.socioeconomicStatus,
+            cep: this.cep,
+            street: this.street,
+            number: this.number,
+            neighborhood: this.neighborhood,
+            city: this.city,
+            state: this.state,
+            weight: this.weight,
+            height: this.height,
+            age: this.age,
+            downFall: this.downFall,
         };
+    }
+
+    calculateAge(dataNascimento) {
+        const hoje = new Date();
+        const nascimento = new Date(dataNascimento);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const mes = hoje.getMonth() - nascimento.getMonth();
+        if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+        return idade;
     }
 
     static fromJSON(json) {
         return new Paciente(json);
     }
-
-} 
+}

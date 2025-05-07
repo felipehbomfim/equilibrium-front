@@ -26,7 +26,7 @@ export default function ProfilePage() {
                 const userId = id != "me" ? id : session?.user?.id;
                 console.log(userId);
                 if (!userId) return;
-                const response = await api.getPerson(userId);
+                const response = await api.getPersonByCpf(userId);
                 console.log(response);
                 setUser(response);
             } catch (error) {

@@ -23,6 +23,25 @@ export default function HealthUnitTable({refreshKey, onEdit}) {
 
     const columns = generateColumns([
         { accessorKey: 'name', title: 'Nome', enableSorting: true },
+        { accessorKey: 'street', title: 'Rua' },
+        { accessorKey: 'number', title: 'Número' },
+        { accessorKey: 'neighborhood', title: 'Bairro' },
+        { accessorKey: 'city', title: 'Cidade' },
+        { accessorKey: 'state', title: 'Estado' },
+        {
+            accessorKey: 'createdAt',
+            title: 'Criado em',
+            cell: ({ row }) => {
+                const date = new Date(row.original.createdAt);
+                return date.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+            },
+        },
         {
             accessorKey: 'actions',
             title: 'Ações',
@@ -49,6 +68,7 @@ export default function HealthUnitTable({refreshKey, onEdit}) {
             },
         },
     ]);
+
 
     const confirmDelete = async () => {
         try {

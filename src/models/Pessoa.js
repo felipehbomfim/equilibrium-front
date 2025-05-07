@@ -1,32 +1,42 @@
 export class Pessoa {
-    constructor(nome, cpf, senha, telefone, sexo, perfil) {
-        this.nome = nome;
-        this.cpf = cpf;
-        this.senha = senha;
-        this.telefone = telefone;
-        this.sexo = sexo;
-        this.perfil = perfil;
+    constructor(data, perfil) {
+        this.cpf = data.cpf;
+        this.name = data.nome;
+        this.password = data.senha;
+        this.phone = data.telefone;
+        this.gender = data.sexo;
+        this.profile = this.mapPerfil(perfil);
+        this.email = data.email || null;
     }
 
     toJSON() {
         return {
-            nome: this.nome,
             cpf: this.cpf,
-            senha: this.senha,
-            telefone: this.telefone,
-            sexo: this.sexo,
-            perfil: this.perfil
+            name: this.name,
+            password: this.password,
+            phone: this.phone,
+            gender: this.gender,
+            profile: this.profile,
+            email: this.email,
         };
     }
 
-    static fromJSON(json) {
-        return new Pessoa(
-            json.nome,
-            json.cpf,
-            json.senha,
-            json.telefone,
-            json.sexo,
-            json.perfil
-        );
+    mapPerfil(perfil) {
+        switch (perfil) {
+            case 'pesquisador': return 'Researcher';
+            case 'profissional': return 'Professional';
+            default: return 'Patient';
+        }
     }
-} 
+
+    static fromJSON(json) {
+        return new Pessoa({
+            cpf: json.cpf,
+            nome: json.name,
+            senha: json.password,
+            telefone: json.phone,
+            sexo: json.gender,
+            email: json.email
+        }, json.profile);
+    }
+}
