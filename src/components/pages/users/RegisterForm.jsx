@@ -53,7 +53,6 @@ export default function RegisterForm({ onSuccess }) {
         }
         return idade;
     };
-
     const handleSubmitForm = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -69,31 +68,26 @@ export default function RegisterForm({ onSuccess }) {
 
         try {
             const pessoa = new Pessoa(formData, perfil);
-            await api.createPerson(pessoa.toJSON());
-
-            let perfilInstance = null;
-            let tipo = '';
-
-            if (perfil === 'pesquisador') {
-                tipo = 'researcher';
-                perfilInstance = new Pesquisador(formData);
-            } else if (perfil === 'profissional') {
-                tipo = 'healthProfessional';
-                perfilInstance = {
-                    cpf: formData.cpf,
-                    expertise: formData.especialidade,
-                    email: formData.email,
-                };
-            } else if (perfil === 'paciente') {
-                tipo = 'patient';
-                perfilInstance = new Paciente(formData);
-            }
-
-            if (tipo) {
-                const payload = perfilInstance.toJSON ? perfilInstance.toJSON() : perfilInstance;
-                await api.createProfile(tipo, payload);
-            }
-
+            const pessoaPayload = {
+                ...pessoa.toJSON(),
+                institution: formData.instituicao,
+                fieldOfStudy: formData.area,
+                expertise: formData.especialidade,
+                dateOfBirth: formData.data_nascimento,
+                educationLevel: formData.escolaridade,
+                socioeconomicStatus: formData.nivel_socio_economico,
+                cep: formData.address_cep,
+                street: formData.street,
+                number: formData.number,
+                neighborhood: formData.neighborhood,
+                city: formData.city,
+                state: formData.state,
+                weight: formData.peso ? parseFloat(formData.peso) : null,
+                height: formData.altura ? parseFloat(formData.altura) : null,
+                age: formData.data_nascimento ? calcularIdade(formData.data_nascimento) : null,
+                downFall: formData.queda ? formData.queda === 'true' : null,
+            };
+            await api.createPerson(pessoaPayload);
             toast.success('Usuário cadastrado com sucesso!');
             reset();
 
@@ -103,7 +97,7 @@ export default function RegisterForm({ onSuccess }) {
                 router.push('/users');
             }
         } catch (error) {
-            toast.error('Erro ao cadastrar usuário');
+            toast.error(`Erro ao cadastrar usuário : ${error}`);
             console.error(error);
         } finally {
             setLoading(false);

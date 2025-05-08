@@ -5,7 +5,7 @@ import { useModal } from "@/hooks/useModal";
 import RegisterForm from "./RegisterForm";
 import { Plus } from "lucide-react";
 
-export default function UserRegisterModal() {
+export default function UserRegisterModal({ onSuccess }) {
     const { isOpen, openModal, closeModal } = useModal();
 
     return (
@@ -22,7 +22,12 @@ export default function UserRegisterModal() {
                     </div>
 
                     <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-                        <RegisterForm onSuccess={closeModal} />
+                        <RegisterForm
+                            onSuccess={() => {
+                                onSuccess?.();
+                                closeModal();
+                            }}
+                        />
                     </div>
                 </div>
             </Modal>

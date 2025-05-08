@@ -23,9 +23,9 @@ export class Pessoa {
 
     mapPerfil(perfil) {
         switch (perfil) {
-            case 'pesquisador': return 'Researcher';
-            case 'profissional': return 'Professional';
-            default: return 'Patient';
+            case 'pesquisador': return 'researcher';
+            case 'profissional': return 'healthProfessional';
+            default: return 'patient';
         }
     }
 

@@ -8,11 +8,18 @@ export const api = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(dados)
+                body: JSON.stringify(dados),
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData?.message || 'Erro ao cadastrar pessoa';
+                throw new Error(message);
+            }
+
             return await response.json();
         } catch (error) {
-            throw new Error('Erro ao cadastrar pessoa');
+            throw new Error(error.message || 'Erro ao cadastrar pessoa');
         }
     },
 

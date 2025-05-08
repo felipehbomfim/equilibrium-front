@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {Search} from "lucide-react";
 import {api} from "@/services/apiPerson";
 
-export default function UsersTable() {
+export default function UsersTable({ refreshKey }) {
     const [data, setData] = useState([]);
     const [total, setTotal] = useState(0);
     const [pageIndex, setPageIndex] = useState(0);
@@ -109,7 +109,7 @@ export default function UsersTable() {
         };
 
         fetchData();
-    }, [pageIndex, pageSize, search, sortBy, sortDir]);
+    }, [pageIndex, pageSize, search, sortBy, sortDir, refreshKey]);
 
     return (
         <DataTable

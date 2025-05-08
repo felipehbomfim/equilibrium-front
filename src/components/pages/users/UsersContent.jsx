@@ -4,8 +4,11 @@ import { Users } from 'lucide-react';
 import UsersTable from "./UsersTable";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import UserRegisterModal from './UserRegisterModal';
+import {useState} from "react";
 
 export default function UsersContent() {
+    const [refreshKey, setRefreshKey] = useState(0);
+
     return (
         <div className="p-2 space-y-2">
             <PageBreadcrumb
@@ -22,11 +25,15 @@ export default function UsersContent() {
                             <Users className="w-5 h-5"/>
                             Listagem de usuários
                         </h3>
-                        <UserRegisterModal />
+                        <UserRegisterModal
+                            onSuccess={() => {
+                                setRefreshKey(prev => prev + 1);
+                            }}
+                        />
                     </div>
                 </div>
                 <div className="border-t border-gray-100 p-5 dark:border-gray-800 sm:p-6">
-                    <UsersTable/>
+                    <UsersTable refreshKey={refreshKey} />
                 </div>
             </div>
         </div>
