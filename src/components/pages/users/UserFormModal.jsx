@@ -20,8 +20,8 @@ export default function UserFormModal({ isOpen, onClose, userData, onSuccess }) 
                     <UserForm
                         mode={userData ? "edit" : "create"}
                         initialData={userData}
-                        onSuccess={() => {
-                            onSuccess?.();
+                        onSuccess={(updatedData) => {
+                            onSuccess?.(updatedData);
                             onClose?.();
                         }}
                     />

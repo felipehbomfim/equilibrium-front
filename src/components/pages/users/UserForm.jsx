@@ -88,25 +88,47 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
 
         try {
             const pessoa = new Pessoa(formData, profile);
-            const pessoaPayload = {
+
+            let pessoaPayload = {
                 ...pessoa.toJSON(),
-                institution: formData.institution,
-                fieldOfStudy: formData.fieldOfStudy,
-                expertise: formData.expertise,
-                dateOfBirth: formData.dateOfBirth,
-                educationLevel: formData.educationLevel,
-                socioeconomicStatus: formData.socioeconomicStatus,
-                cep: formData.address_cep,
-                street: formData.street,
-                number: formData.number,
-                neighborhood: formData.neighborhood,
-                city: formData.city,
-                state: formData.state,
-                weight: formData.weight ? parseFloat(formData.weight) : null,
-                height: formData.height ? parseFloat(formData.height) : null,
-                age: formData.dateOfBirth ? calcularIdade(formData.dateOfBirth) : null,
-                downFall: formData.downFall ? formData.downFall === 'true' : null,
             };
+
+            if (profile === 'paciente') {
+                pessoaPayload = {
+                    ...pessoaPayload,
+                    dateOfBirth: formData.dateOfBirth,
+                    educationLevel: formData.educationLevel,
+                    socioeconomicStatus: formData.socioeconomicStatus,
+                    cep: formData.address_cep,
+                    street: formData.street,
+                    number: formData.number,
+                    neighborhood: formData.neighborhood,
+                    city: formData.city,
+                    state: formData.state,
+                    weight: formData.weight ? parseFloat(formData.weight) : null,
+                    height: formData.height ? parseFloat(formData.height) : null,
+                    age: formData.dateOfBirth ? calcularIdade(formData.dateOfBirth) : null,
+                    downFall: formData.downFall ? formData.downFall === true : false,
+                };
+            }
+
+            if (profile === 'pesquisador') {
+                pessoaPayload = {
+                    ...pessoaPayload,
+                    institution: formData.institution,
+                    fieldOfStudy: formData.fieldOfStudy,
+                    expertise: formData.expertise,
+                    email: formData.email,
+                };
+            }
+
+            if (profile === 'profissional') {
+                pessoaPayload = {
+                    ...pessoaPayload,
+                    expertise: formData.expertise,
+                    email: formData.email,
+                };
+            }
 
             if (mode === 'create') {
                 await api.createPerson(pessoaPayload);
@@ -119,7 +141,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
             reset();
 
             if (onSuccess) {
-                onSuccess();
+                onSuccess(pessoaPayload);
             } else {
                 router.push('/users');
             }
@@ -242,7 +264,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                                     mask="(__) _____-____?"
                                     replacement={{ _: /\d/ }}
                                     value={safeValue}
-                                    placeholder="CPF"
+                                    placeholder="Telefone"
                                     className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700"
                                 />
                             );

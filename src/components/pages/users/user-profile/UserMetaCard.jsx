@@ -14,7 +14,7 @@ const InfoItem = ({ label, value }) => (
     </div>
 );
 
-export default function UserMetaCard({ user }) {
+export default function UserMetaCard({ user, onUserUpdated }) {
   const { isOpen, openModal, closeModal } = useModal();
   const perfilData = user?.perfilData || {};
 
@@ -121,8 +121,12 @@ export default function UserMetaCard({ user }) {
           isOpen={isOpen}
           onClose={closeModal}
           userData={user}
-          onSuccess={() => {
+          onSuccess={(updatedData) => {
               closeModal();
+              if (updatedData) {
+                  // Atualiza os dados no UserMetaCard:
+                  onUserUpdated?.(updatedData);
+              }
           }}
         />
     </>

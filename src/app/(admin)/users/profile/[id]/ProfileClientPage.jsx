@@ -9,7 +9,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {ArrowLeft} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { api } from "@/services/apiPerson";
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -22,7 +22,7 @@ export default function ProfilePage() {
         let perfilEndpoint = '';
         const onlyDigits = response.phone?.replace(/\D/g, '') ?? '';
 
-        if (onlyDigits.length < 11) {
+        if (onlyDigits.length < 11 && onlyDigits != "") {
             response.phone = onlyDigits.padEnd(11, '0');
         } else {
             response.phone = onlyDigits;
@@ -109,7 +109,19 @@ export default function ProfilePage() {
                 </h3>
 
                 <div className="space-y-6">
-                    <UserMetaCard user={user}/>
+                    <UserMetaCard
+                        user={user}
+                        onUserUpdated={async (updatedData) => {
+                            await mutate(['user', cpfToFetch], {
+                                ...user,
+                                ...updatedData,
+                                perfilData: {
+                                    ...user.perfilData,
+                                    ...updatedData,
+                                }
+                            }, false);
+                        }}
+                    />
                     <UserAddressCard user={user}/>
                 </div>
             </div>

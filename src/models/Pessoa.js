@@ -1,12 +1,11 @@
 export class Pessoa {
     constructor(data, perfil) {
-        this.cpf = this.cleanCpf(data.cpf); // ✅ tira pontuação
-        this.name = data.nome;
+        this.cpf = this.cleanCpf(data.cpf);
+        this.name = data.name;
         this.password = data.password;
-        this.phone = data.telefone;
-        this.gender = data.sexo;
+        this.phone = data.phone;
+        this.gender = data.gender;
         this.profile = this.mapPerfil(perfil);
-        this.email = data.email || null;
     }
 
     toJSON() {
@@ -17,7 +16,6 @@ export class Pessoa {
             phone: this.phone,
             gender: this.gender,
             profile: this.profile,
-            email: this.email,
         };
     }
 
@@ -40,7 +38,6 @@ export class Pessoa {
             senha: json.password,
             telefone: json.phone,
             sexo: json.gender,
-            email: json.email
         }, json.profile);
     }
 }
