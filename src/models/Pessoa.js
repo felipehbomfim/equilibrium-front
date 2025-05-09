@@ -1,8 +1,8 @@
 export class Pessoa {
     constructor(data, perfil) {
-        this.cpf = data.cpf;
+        this.cpf = this.cleanCpf(data.cpf); // ✅ tira pontuação
         this.name = data.nome;
-        this.password = data.senha;
+        this.password = data.password;
         this.phone = data.telefone;
         this.gender = data.sexo;
         this.profile = this.mapPerfil(perfil);
@@ -27,6 +27,10 @@ export class Pessoa {
             case 'profissional': return 'healthProfessional';
             default: return 'patient';
         }
+    }
+
+    cleanCpf(cpf) {
+        return cpf?.replace(/\D/g, '') || '';
     }
 
     static fromJSON(json) {

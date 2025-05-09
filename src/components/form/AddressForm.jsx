@@ -40,16 +40,22 @@ export default function AddressForm({ register, errors, setValue, watch, control
                     <Controller
                         name="address_cep"
                         control={control}
-                        render={({ field }) => (
-                            <InputMask
-                                {...field}
-                                value={field.value ?? ''}
-                                mask="_____-___"
-                                replacement={{ _: /\d/ }}
-                                placeholder="CEP"
-                                className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
+                        render={({ field }) => {
+                            let safeValue = field.value ?? '';
+                            if (safeValue && safeValue.replace(/\D/g, '').length === 8) {
+                                safeValue = formatCep(safeValue);
+                            }
+                            return (
+                                <InputMask
+                                    {...field}
+                                    value={safeValue}
+                                    mask="_____-___"
+                                    replacement={{ _: /\d/ }}
+                                    placeholder="CEP"
+                                    className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
                             />
-                        )}
+                        );
+                        }}
                     />
                     {errors.address_cep && (
                         <span className="text-red-500 text-sm">{errors.address_cep.message}</span>

@@ -9,37 +9,59 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {ArrowLeft} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { api } from "@/services/apiPerson";
+import useSWR from 'swr';
 
 export default function ProfilePage() {
     const { id } = useParams();
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [hasTriedFetch, setHasTriedFetch] = useState(false);
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const {data: session, status} = useSession();
 
-    useEffect(() => {
-        if (status !== "authenticated") return;
+    const fetchUser = async (cpf) => {
+        const response = await api.getPersonByCpf(cpf);
+        let perfilEndpoint = '';
+        const onlyDigits = response.phone?.replace(/\D/g, '') ?? '';
 
-        const fetchUserData = async () => {
-            try {
-                setLoading(true);
-                const userId = id != "me" ? id : session?.user?.id;
-                console.log(userId);
-                if (!userId) return;
-                const response = await api.getPersonByCpf(userId);
-                console.log(response);
-                setUser(response);
-            } catch (error) {
-                console.error('Erro ao buscar usuário:', error);
-            } finally {
-                setLoading(false);
+        if (onlyDigits.length < 11) {
+            response.phone = onlyDigits.padEnd(11, '0');
+        } else {
+            response.phone = onlyDigits;
+        }
+
+        switch (response.profile) {
+            case 'researcher':
+                perfilEndpoint = `researcher/${response.cpf}`;
+                break;
+            case 'healthProfessional':
+                perfilEndpoint = `healthProfessional/${response.cpf}`;
+                break;
+            case 'patient':
+                perfilEndpoint = `patient/${response.cpf}`;
+                break;
+            default:
+                return response;
+        }
+
+        const perfilData = await api.getPerfilByCpf(perfilEndpoint);
+        return { ...response, perfilData };
+    };
+
+    const cpfToFetch = id !== "me" ? id : session?.user?.id;
+
+    const { data: user, error, loading } = useSWR(
+        cpfToFetch ? ['user', cpfToFetch] : null,
+        ([, cpf]) => fetchUser(cpf),
+        {
+            onSuccess: () => {
+                setHasTriedFetch(true);
+            },
+            onError: () => {
+                setHasTriedFetch(true);
             }
-        };
+        }
+    );
 
-        fetchUserData();
-    }, [id, session, status]);
-
-    if (loading) {
+    if (loading || status === "loading") {
         return (
             <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 xl:p-7.5">
                 <Skeleton className="w-1/3 h-6 mb-6" />
@@ -51,7 +73,10 @@ export default function ProfilePage() {
         );
     }
 
-    if (!user) return <p className="text-center py-10">Usuário não encontrado</p>;
+    if (hasTriedFetch && !user) {
+        return <p className="text-center py-10">Usuário não encontrado</p>;
+    }
+
     return (
         <div>
             <PageBreadcrumb
@@ -70,13 +95,13 @@ export default function ProfilePage() {
             />
             <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 xl:p-7.5">
                 {id !== 'me' && (
-                    <button
-                        onClick={() => router.back()}
+                    <a
+                        href="/users"
                         className="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Voltar
-                    </button>
+                    </a>
                 )}
 
                 <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">

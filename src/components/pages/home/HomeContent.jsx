@@ -19,10 +19,6 @@ export default function HomePage() {
                     Ação Rápida
                 </button>
             </div>
-
-
-
-
             {/* Conteúdo principal */}
             <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Conteúdo</h2>
