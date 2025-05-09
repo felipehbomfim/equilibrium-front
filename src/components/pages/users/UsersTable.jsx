@@ -6,7 +6,7 @@ import {api} from "@/services/apiPerson";
 import AlertModal from "@/components/modal/AlertModal";
 import {useModal} from "@/hooks/useModal";
 import {toast} from "sonner";
-import {useRouter} from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function UsersTable({ refreshKey }) {
     const [data, setData] = useState([]);
@@ -77,8 +77,9 @@ export default function UsersTable({ refreshKey }) {
                 title: 'Ações',
                 size: '80px',
                 cell: ({ row }) => {
-                    const router = useRouter();
                     const id = row.original.cpf;
+                    const { data: session } = useSession();
+
                     return (
                         <div className="flex gap-2">
                             <a
@@ -88,14 +89,16 @@ export default function UsersTable({ refreshKey }) {
                                 className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
                                 <Search size={14} />
                             </a>
-                            <button
-                                onClick={() => {
-                                    setSelectedId(id);
-                                    openModal();
-                                }}
-                                className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-3 py-2 text-xs font-medium text-red-400 shadow-sm ring-1 ring-red-300 transition hover:bg-red-200 dark:bg-red-900 dark:text-white dark:ring-red-700 dark:hover:bg-red-800">
-                                <Trash size={14} />
-                            </button>
+                            {id !== session?.user?.id && (
+                                <button
+                                    onClick={() => {
+                                        setSelectedId(id);
+                                        openModal();
+                                    }}
+                                    className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-3 py-2 text-xs font-medium text-red-400 shadow-sm ring-1 ring-red-300 transition hover:bg-red-200 dark:bg-red-900 dark:text-white dark:ring-red-700 dark:hover:bg-red-800">
+                                    <Trash size={14} />
+                                </button>
+                            )}
                         </div>
                     );
                 },
