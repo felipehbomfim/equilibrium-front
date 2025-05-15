@@ -18,4 +18,40 @@ export const api = {
             throw error;
         }
     },
+
+    async getSensorData(evaluationId) {
+        try {
+            const response = await fetch(`${API_URL}/dado-sensor/evaluation/${evaluationId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*',
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Erro ao obter dados do sensor:', error);
+            throw error;
+        }
+    },
+
+    async getEvaluationDetails(evaluationId) {
+        try {
+            const response = await fetch(`${API_URL}/evaluation/details/${evaluationId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*',
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Erro ao buscar detalhes da avaliação:', error);
+            throw error;
+        }
+    }
 }

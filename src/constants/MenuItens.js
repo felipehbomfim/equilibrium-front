@@ -24,11 +24,6 @@ export const navItems = [
         path: '/users/profile/me',
     },
     {
-        icon: <BarChart3 size={18} />,
-        name: 'Gráficos',
-        path: '/graphics',
-    },
-    {
         icon: <ListCheck size={18} />,
         name: 'Avaliações',
         path: '/evaluations',

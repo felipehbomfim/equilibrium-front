@@ -23,14 +23,33 @@ export default function UserMetaCard({ user, onUserUpdated }) {
     closeModal();
   };
 
-  const renderFields = () => {
+  function formatCpf(value) {
+    if (!value) return '';
+    return value
+        .replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+
+  function formatPhone(value) {
+    if (!value) return '';
+    const digits = value.replace(/\D/g, '').padEnd(11, '0');
+
+    return digits
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d)/, '$1-$2')
+        .slice(0, 15);
+  }
+
+    const renderFields = () => {
     switch (user?.profile) {
       case "healthProfessional":
         return (
             <>
-              <InfoItem label="CPF" value={user?.cpf} />
+              <InfoItem label="CPF" value={formatCpf(user?.cpf)} />
               <InfoItem label="Sexo" value={user?.gender === 'M' ? 'Masculino' : 'Feminino'} />
-              <InfoItem label="Telefone" value={user?.phone} />
+              <InfoItem label="Telefone" value={formatPhone(user?.phone)} />
               <InfoItem label="E-mail" value={perfilData?.email} />
               <InfoItem label="Especialidade" value={perfilData?.expertise} />
             </>
@@ -39,9 +58,9 @@ export default function UserMetaCard({ user, onUserUpdated }) {
       case "researcher":
         return (
             <>
-              <InfoItem label="CPF" value={user?.cpf} />
+              <InfoItem label="CPF" value={formatCpf(user?.cpf)} />
               <InfoItem label="Sexo" value={user?.gender === 'M' ? 'Masculino' : 'Feminino'} />
-              <InfoItem label="Telefone" value={user?.phone} />
+              <InfoItem label="Telefone" value={formatPhone(user?.phone)} />
               <InfoItem label="Email" value={perfilData?.email} />
               <InfoItem label="Instituição" value={perfilData?.institution} />
               <InfoItem label="Área de Atuação" value={perfilData?.fieldOfStudy} />
@@ -52,9 +71,9 @@ export default function UserMetaCard({ user, onUserUpdated }) {
       case "patient":
         return (
             <>
-              <InfoItem label="CPF" value={user?.cpf} />
+              <InfoItem label="CPF" value={formatCpf(user?.cpf)} />
               <InfoItem label="Sexo" value={user?.gender === 'M' ? 'Masculino' : 'Feminino'} />
-              <InfoItem label="Telefone" value={user?.phone} />
+              <InfoItem label="Telefone" value={formatPhone(user?.phone)} />
               <InfoItem label="Data de Nascimento" value={perfilData?.dateOfBirth} />
               <InfoItem label="Idade" value={perfilData?.age} />
               <InfoItem label="Escolaridade" value={perfilData?.educationLevel} />

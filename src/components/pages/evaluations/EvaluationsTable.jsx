@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { generateColumns } from "@/components/datatable/GenerateColumns";
 import DataTable from "@/components/datatable/DataTable";
-import {Pencil, Trash} from "lucide-react";
+import {Pencil, Search, Trash} from "lucide-react";
 import AlertModal from "@/components/modal/AlertModal";
 import {useModal} from "@/hooks/useModal";
 import {toast} from "sonner";
@@ -25,7 +25,7 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
             accessorKey: 'cpfHealthProfessional',
             title: 'Aplicador',
             cell: ({ row }) => {
-                const cpf = row.original.cpfPatient;
+                const cpf = row.original.cpfHealthProfessional;
                 return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
             },
         },
@@ -60,13 +60,16 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
             title: 'Ações',
             size: '80px',
             cell: ({ row }) => {
+                const id = row.original.id;
+
                 return (
                     <div className="flex gap-2">
-                        <button
-                            onClick={() => onEdit(row.original)}
+                        <a
+                            href={`/evaluations/data/${id}`}
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
-                            <Pencil size={14} />
-                        </button>
+                            <Search size={14} />
+                        </a>
                     </div>
                 );
             },
