@@ -3,15 +3,15 @@
 import { useState } from "react";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Filter, List } from "lucide-react";
-import EvallutionsTable from "@/components/pages/evaluations/EvaluationsTable";
+import EvaluationsTable from "@/components/pages/evaluations/EvaluationsTable";
+import DatePicker from "@/components/form/input/DatePicker";
 
 export default function EvaluationsContent() {
     const [refreshKey, setRefreshKey] = useState(0);
 
-    // 🎯 Novos filtros
     const [filterType, setFilterType] = useState('');
     const [filterApplicator, setFilterApplicator] = useState('');
-
+    const [filterDate, setFilterDate] = useState('');
 
     return (
         <div className="p-2 space-y-4">
@@ -31,7 +31,6 @@ export default function EvaluationsContent() {
                         </h3>
                     </div>
                     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                        {/* Tipo de teste */}
                         <div>
                             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Tipo de Teste
@@ -46,8 +45,6 @@ export default function EvaluationsContent() {
                                 <option value="5TSTS">5TSTS</option>
                             </select>
                         </div>
-
-                        {/* Aplicador */}
                         <div>
                             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Aplicador
@@ -60,6 +57,19 @@ export default function EvaluationsContent() {
                                 className="block w-full rounded-lg border px-3 py-2 text-sm shadow-theme-xs dark:bg-gray-900 dark:text-white/90 dark:border-gray-700 border-gray-300 focus:border-brand-500 focus:ring-brand-500"
                             />
                         </div>
+                        <div>
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                Data da Avaliação
+                            </label>
+                            <DatePicker
+                                id="filtro-data"
+                                placeholder="Selecionar data"
+                                onChange={(selectedDates) => {
+                                    const data = selectedDates?.[0];
+                                    setFilterDate(data?.toISOString().split('T')[0] || '');
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
                 <div className="border-t border-gray-100 p-5 dark:border-gray-800 sm:p-6">
@@ -70,10 +80,11 @@ export default function EvaluationsContent() {
                         </h3>
                     </div>
 
-                    <EvallutionsTable
+                    <EvaluationsTable
                         refreshKey={refreshKey}
                         filterType={filterType}
                         filterApplicator={filterApplicator}
+                        filterDate={filterDate}
                     />
                 </div>
             </div>

@@ -7,7 +7,7 @@ import {useModal} from "@/hooks/useModal";
 import {toast} from "sonner";
 import {api} from "@/services/apiEvaluations";
 
-export default function EvaluationsTable({ refreshKey, filterType, filterApplicator }) {
+export default function EvaluationsTable({ refreshKey, filterType, filterApplicator, filterDate }) {
     const [data, setData] = useState([]);
     const [total, setTotal] = useState(0);
     const [pageIndex, setPageIndex] = useState(0);
@@ -123,7 +123,12 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
                     );
                 }
 
-                // 🔃 Ordenação
+                if (filterDate) {
+                    filtradas = filtradas.filter((evaluation) =>
+                        evaluation.date?.startsWith(filterDate)
+                    );
+                }
+
                 if (sortBy) {
                     filtradas.sort((a, b) => {
                         const aValue = a[sortBy];
@@ -147,7 +152,7 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
         };
 
         fetchData();
-    }, [pageIndex, pageSize, search, sortBy, sortDir, refreshKey, filterType, filterApplicator]); // 🆕 adiciona os filtros na dependência
+    }, [pageIndex, pageSize, search, sortBy, sortDir, refreshKey, filterType, filterApplicator, filterDate]);
 
     return (
         <>
