@@ -1,30 +1,152 @@
 'use client';
 
-import { Users, Home as HomeIcon } from 'lucide-react';
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useEffect, useState } from "react";
+import { TotalUserAndEvaluations } from "@/components/pages/home/TotalUserAndEvaluations";
+import MonthlyTarget from "@/components/pages/home/MontlyTarget";
+import MonthlyEvaluationsChart from "@/components/pages/home/MonthlyEvaluationsChart";
+import StatisticsChart from "@/components/pages/home/StatisticsChart";
+import RankingPage from "@/components/pages/home/RankingPage";
+import { api } from "@/services/apiPerson";
+import { api as evaluationApi } from "@/services/apiEvaluations";
 
-export default function HomePage() {
-    return (
-        <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+export default function HomeContent() {
+    const [loading, setLoading] = useState(true);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalEvaluations, setTotalEvaluations] = useState(0);
+    const [evaluations, setEvaluations] = useState([]);
 
-            {/* Título + Ações */}
-            <div className="flex flex-wrap justify-between items-center gap-4">
-                <div className="flex items-center gap-2 text-gray-800 dark:text-white/90">
-                    <HomeIcon className="w-5 h-5" />
-                    <h1 className="text-2xl font-bold">Página Inicial</h1>
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const todayStr = now.toISOString().split("T")[0];
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const people = await api.getAllPersons();
+                const evaluationsData = await evaluationApi.getEvaluations();
+
+                setTotalUsers(people.length);
+                setTotalEvaluations(evaluationsData.length);
+                setEvaluations(evaluationsData);
+            } catch (err) {
+                console.error("Erro ao carregar dados da home:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const monthlyEvaluations = evaluations.filter(ev => {
+        const date = new Date(ev.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    });
+
+    const todaysEvaluations = evaluations.filter(ev =>
+        ev.date.startsWith(todayStr)
+    );
+
+    const atual = monthlyEvaluations.length;
+    const hoje = todaysEvaluations.length;
+
+    const evaluationsByMonth = Array(12).fill(0);
+    const average5sts = Array.from({ length: 12 }, () => []);
+    const averageTug = Array.from({ length: 12 }, () => []);
+
+    evaluations.forEach(ev => {
+        const date = new Date(ev.date);
+        const month = date.getMonth();
+        const seconds = convertToRealSeconds(ev.totalTime);
+
+        evaluationsByMonth[month] += 1;
+
+        if (ev.type === "5TSTS") average5sts[month].push(seconds);
+        if (ev.type === "TUG") averageTug[month].push(seconds);
+    });
+
+    const normalize = arr => arr.map(v => v ? Number(v.toFixed(1)) : 0.0);
+    const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+
+    const average5stsByMonth = normalize(
+        average5sts.map(group => group.length ? average(group) : null)
+    );
+
+    const averageTugByMonth = normalize(
+        averageTug.map(group => group.length ? average(group) : null)
+    );
+
+    const top5sts = getTopRanking(evaluations, "5TSTS");
+    const topTug = getTopRanking(evaluations, "TUG");
+
+    if (loading) {
+        return (
+            <div className="grid grid-cols-12 gap-4 md:gap-6 p-6 animate-pulse">
+                <div className="col-span-12 xl:col-span-7 space-y-6">
+                    <div className="h-24 rounded-xl bg-gray-200 w-full" />
+                    <div className="h-[280px] rounded-xl bg-gray-200 w-full" />
                 </div>
-
-                <button className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700">
-                    <Users className="h-4 w-4" />
-                    Ação Rápida
-                </button>
+                <div className="col-span-12 xl:col-span-5">
+                    <div className="h-[370px] rounded-xl bg-gray-200 w-full" />
+                </div>
+                <div className="col-span-12">
+                    <div className="h-[320px] rounded-xl bg-gray-200 w-full" />
+                </div>
+                <div className="col-span-12">
+                    <div className="h-[400px] rounded-xl bg-gray-200 w-full" />
+                </div>
             </div>
-            {/* Conteúdo principal */}
-            <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Conteúdo</h2>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.                </p>
-            </section>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-12 gap-4 md:gap-6">
+            <div className="col-span-12 space-y-6 xl:col-span-7">
+                <TotalUserAndEvaluations
+                    totalUser={totalUsers}
+                    totalEvaluations={totalEvaluations}
+                />
+                <MonthlyEvaluationsChart data={evaluationsByMonth} />
+            </div>
+
+            <div className="col-span-12 xl:col-span-5">
+                <MonthlyTarget total={100} atual={atual} hoje={hoje} />
+            </div>
+
+            <div className="col-span-12">
+                <StatisticsChart
+                    data={{
+                        fiveTSTS: average5stsByMonth,
+                        tug: averageTugByMonth,
+                    }}
+                />
+            </div>
+
+            <div className="col-span-12">
+                <RankingPage data={{ fiveTSTS: top5sts, tug: topTug }} />
+            </div>
         </div>
     );
+}
+
+function convertToRealSeconds(timeStr) {
+    const [, minutes] = timeStr.split(":").map(Number);
+    return minutes;
+}
+
+function average(arr) {
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+function getTopRanking(data, type) {
+    return data
+        .filter(ev => ev.type === type)
+        .map(ev => ({
+            name: ev.cpfPatient,
+            time: convertToRealSeconds(ev.totalTime),
+            date: ev.date,
+        }))
+        .sort((a, b) => a.time - b.time)
+        .slice(0, 5);
 }

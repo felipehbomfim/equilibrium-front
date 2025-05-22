@@ -6,12 +6,13 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { LineChart, ArrowLeft } from "lucide-react";
 import ReactECharts from 'echarts-for-react';
 import { api } from "@/services/apiEvaluations";
+import T5STSChart from "@/components/pages/evaluations/sensor-data/5TSTSChart";
+import {RadarChart} from "@/components/pages/evaluations/sensor-data/RadarChart";
+import {HeatmapChart} from "@/components/pages/evaluations/sensor-data/HeatmapChart";
 
 export default function SensorDataPage() {
     const { id } = useParams();
     const router = useRouter();
-    const [optionAccel, setOptionAccel] = useState(null);
-    const [optionGyro, setOptionGyro] = useState(null);
     const [noData, setNoData] = useState(false);
     const [evaluationDetails, setEvaluationDetails] = useState(null);
     const [labelColor, setLabelColor] = useState('#000');
@@ -21,6 +22,8 @@ export default function SensorDataPage() {
         const isDark = document.documentElement.classList.contains('dark');
         setLabelColor(isDark ? '#fff' : '#000');
     };
+
+    const indicadoresRadar = useMemo(() => calcularIndicadores(sensorData), [sensorData]);
 
     useEffect(() => {
         updateLabelColor();
@@ -113,7 +116,6 @@ export default function SensorDataPage() {
         };
     }, [sensorData, labelColor]);
 
-
     const InfoItem = ({ label, value }) => (
         <div>
             <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">{label}</p>
@@ -135,6 +137,51 @@ export default function SensorDataPage() {
         const date = new Date(dateStr);
         return date.toLocaleDateString('pt-BR');
     };
+
+    function calcularIndicadores(sensorData) {
+        if (!sensorData.length) return null;
+
+        const accelNorm = sensorData.map(d => Math.sqrt(
+            d.accel_x ** 2 + d.accel_y ** 2 + d.accel_z ** 2
+        ));
+
+        const potencia = Math.sqrt(accelNorm.reduce((acc, v) => acc + v ** 2, 0) / accelNorm.length);
+        const fadiga = Math.sqrt(accelNorm.reduce((acc, v) => acc + (v - (accelNorm.reduce((a, b) => a + b, 0) / accelNorm.length)) ** 2, 0) / accelNorm.length);
+
+        const simetria = Math.abs(
+            sensorData.filter(d => d.accel_x >= 0).length - sensorData.filter(d => d.accel_x < 0).length
+        ) / sensorData.length;
+
+        const t0 = new Date(sensorData[0].time).getTime();
+        const tN = new Date(sensorData[sensorData.length - 1].time).getTime();
+        const tempo = (tN - t0) / 1000; // segundos
+
+        return [
+            { name: 'Tempo', value: tempo, maxValue: 60 },
+            { name: 'Potência', value: potencia, maxValue: 20 },
+            { name: 'Fadiga', value: fadiga, maxValue: 10 },
+            { name: 'Simetria', value: simetria * 10, maxValue: 10 },
+        ];
+    }
+
+
+    function calcularIdadeAnos(nascimento, dataRef) {
+        const nasc = new Date(nascimento);
+        const ref = new Date(dataRef);
+        let idade = ref.getFullYear() - nasc.getFullYear();
+        const m = ref.getMonth() - nasc.getMonth();
+        if (m < 0 || (m === 0 && ref.getDate() < nasc.getDate())) idade--;
+        return idade;
+    }
+
+    function tempoStringParaSegundos(tempoStr) {
+        const [h, m, s] = tempoStr.split(':').map(Number);
+        return h * 3600 + m * 60 + s;
+    }
+
+    function tempoStringParaMinutos(tempoStr) {
+        return tempoStringParaSegundos(tempoStr) / 60;
+    }
 
     return (
         <div className="p-2 space-y-4">
@@ -208,10 +255,34 @@ export default function SensorDataPage() {
                     ) : (
                         <>
                             {chartOptions.accel && (
-                                <ReactECharts option={chartOptions.accel} style={{ height: 400 }} />
+                                <div className="p-10">
+                                    <ReactECharts option={chartOptions.accel} style={{ height: 400 }} />
+                                </div>
                             )}
                             {chartOptions.gyro && (
-                                <ReactECharts option={chartOptions.gyro} style={{ height: 400 }} />
+                                <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
+                                    <ReactECharts option={chartOptions.gyro} style={{ height: 400 }} />
+                                </div>
+                            )}
+                            {evaluationDetails && evaluationDetails.patient?.dateOfBirth && evaluationDetails.date && evaluationDetails?.type === '5TSTS' && (
+                                <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
+                                    <T5STSChart
+                                        idadePaciente={calcularIdadeAnos(evaluationDetails.patient.dateOfBirth, evaluationDetails.date)}
+                                        tempoPaciente={tempoStringParaMinutos(evaluationDetails.totalTime)}
+                                        sexo={evaluationDetails.patient.gender}
+                                        labelColor={labelColor}
+                                    />
+                                </div>
+                            )}
+                            {indicadoresRadar && (
+                                <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
+                                    <RadarChart indicators={indicadoresRadar} labelColor={labelColor} />
+                                </div>
+                            )}
+                            {sensorData && (
+                                <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
+                                    <HeatmapChart data={sensorData} labelColor="#000" />
+                                </div>
                             )}
                         </>
                     )}
