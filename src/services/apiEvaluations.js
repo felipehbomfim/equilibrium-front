@@ -53,5 +53,24 @@ export const api = {
             console.error('Erro ao buscar detalhes da avaliação:', error);
             throw error;
         }
+    },
+
+    async getEvaluationsByPersonCpf(cpf) {
+        try {
+            const response = await fetch(`${API_URL}/evaluation/person/${cpf}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*',
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Erro ao buscar avaliações por CPF:', error);
+            throw error;
+        }
     }
+    
 }
