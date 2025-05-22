@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Filter, List } from "lucide-react";
 import EvaluationsTable from "@/components/pages/evaluations/EvaluationsTable";
@@ -12,6 +13,10 @@ export default function EvaluationsContent() {
     const [filterType, setFilterType] = useState('');
     const [filterApplicator, setFilterApplicator] = useState('');
     const [filterDate, setFilterDate] = useState('');
+
+    const searchParams = useSearchParams();
+    const cpfFromUrl = searchParams.get("cpf") || '';
+
 
     return (
         <div className="p-2 space-y-4">
@@ -85,6 +90,7 @@ export default function EvaluationsContent() {
                         filterType={filterType}
                         filterApplicator={filterApplicator}
                         filterDate={filterDate}
+                        filterCpf={cpfFromUrl}
                     />
                 </div>
             </div>

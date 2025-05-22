@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {generateColumns} from "@/components/datatable/GenerateColumns";
 import DataTable from "@/components/datatable/DataTable";
-import {Pencil, Search, Trash} from "lucide-react";
+import {Pencil, Search, Trash, ListChecks} from "lucide-react";
 import {api} from "@/services/apiPerson";
 import AlertModal from "@/components/modal/AlertModal";
 import {useModal} from "@/hooks/useModal";
@@ -89,6 +89,13 @@ export default function UsersTable({ refreshKey }) {
                                 className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
                                 <Search size={14} />
                             </a>
+                            <a
+                                href={`/evaluations?cpf=${id}`}
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
+                                <ListChecks size={14} />
+                            </a>
+
                             {id !== session?.user?.id && (
                                 <button
                                     onClick={() => {

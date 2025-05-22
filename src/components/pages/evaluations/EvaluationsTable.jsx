@@ -7,7 +7,7 @@ import {useModal} from "@/hooks/useModal";
 import {toast} from "sonner";
 import {api} from "@/services/apiEvaluations";
 
-export default function EvaluationsTable({ refreshKey, filterType, filterApplicator, filterDate }) {
+export default function EvaluationsTable({ refreshKey, filterType, filterApplicator, filterDate, filterCpf }) {
     const [data, setData] = useState([]);
     const [total, setTotal] = useState(0);
     const [pageIndex, setPageIndex] = useState(0);
@@ -92,13 +92,20 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
         const fetchData = async () => {
             setLoading(true);
             try {
-                const result = await api.getEvaluations({
-                    limit: pageSize,
-                    skip: pageIndex * pageSize,
-                    search,
-                    sortBy,
-                    sortDir,
-                });
+                let result = [];
+
+                if (filterCpf) {
+                    result = await api.getEvaluationsByPersonCpf(filterCpf);
+                } else {
+                    result = await api.getEvaluations({
+                        limit: pageSize,
+                        skip: pageIndex * pageSize,
+                        search,
+                        sortBy,
+                        sortDir,
+                    });
+                }
+
 
                 let filtradas = result;
                 if (search) {
