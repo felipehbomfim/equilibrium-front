@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { useEffect } from "react";
 import { api } from "@/services/apiHealthUnit";
 import { toast } from "sonner";
-import AddressForm from "@/components/form/AdressForm";
+import AddressForm from "@/components/form/AddressForm";
 
 const schema = yup.object().shape({
     name: yup.string().required('Nome é obrigatório'),

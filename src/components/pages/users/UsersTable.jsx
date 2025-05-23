@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {generateColumns} from "@/components/datatable/GenerateColumns";
 import DataTable from "@/components/datatable/DataTable";
-import {useRouter} from "next/navigation";
-import {Search} from "lucide-react";
+import {Pencil, Search, Trash, ListChecks} from "lucide-react";
 import {api} from "@/services/apiPerson";
+import AlertModal from "@/components/modal/AlertModal";
+import {useModal} from "@/hooks/useModal";
+import {toast} from "sonner";
+import { useSession } from "next-auth/react";
 
 export default function UsersTable({ refreshKey }) {
     const [data, setData] = useState([]);
@@ -14,6 +17,8 @@ export default function UsersTable({ refreshKey }) {
     const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState(null); // ex: 'name'
     const [sortDir, setSortDir] = useState(null); // 'asc' ou 'desc'
+    const [selectedId, setSelectedId] = useState(null);
+    const { isOpen, openModal, closeModal } = useModal();
     const columns = generateColumns([
             {
                 accessorKey: 'cpf',
@@ -67,8 +72,59 @@ export default function UsersTable({ refreshKey }) {
                     });
                 },
             },
+            {
+                accessorKey: 'actions',
+                title: 'Ações',
+                size: '80px',
+                cell: ({ row }) => {
+                    const id = row.original.cpf;
+                    const { data: session } = useSession();
+
+                    return (
+                        <div className="flex gap-2">
+                            <a
+                                href={`/users/profile/${id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
+                                <Search size={14} />
+                            </a>
+                            <a
+                                href={`/evaluations?cpf=${id}`}
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
+                                <ListChecks size={14} />
+                            </a>
+
+                            {id !== session?.user?.id && (
+                                <button
+                                    onClick={() => {
+                                        setSelectedId(id);
+                                        openModal();
+                                    }}
+                                    className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-3 py-2 text-xs font-medium text-red-400 shadow-sm ring-1 ring-red-300 transition hover:bg-red-200 dark:bg-red-900 dark:text-white dark:ring-red-700 dark:hover:bg-red-800">
+                                    <Trash size={14} />
+                                </button>
+                            )}
+                        </div>
+                    );
+                },
+            }
         ]
     );
+
+    const confirmDelete = async () => {
+        try {
+            await api.deletePerson(selectedId);
+            setData(prev => prev.filter(item => item.cpf !== selectedId));
+            toast.success("Sucesso ao remover usuário.");
+        } catch (error) {
+            toast.error("Oops! Erro ao deletar usuário.");
+        } finally {
+            setSelectedId(null);
+            closeModal();
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -112,28 +168,38 @@ export default function UsersTable({ refreshKey }) {
     }, [pageIndex, pageSize, search, sortBy, sortDir, refreshKey]);
 
     return (
-        <DataTable
-            data={data}
-            columns={columns}
-            total={total}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            onPageChange={setPageIndex}
-            loading={loading}
-            onPageSizeChange={size => {
-                setPageSize(size);
-                setPageIndex(0);
-            }}
-            onSearch={value => {
-                setSearch(value);
-                setPageIndex(0);
-            }}
-            sortBy={sortBy}
-            sortDir={sortDir}
-            onSortChange={(field, direction) => {
-                setSortBy(field);
-                setSortDir(direction);
-            }}
-        />
+        <>
+            <DataTable
+                data={data}
+                columns={columns}
+                total={total}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                onPageChange={setPageIndex}
+                loading={loading}
+                onPageSizeChange={size => {
+                    setPageSize(size);
+                    setPageIndex(0);
+                }}
+                onSearch={value => {
+                    setSearch(value);
+                    setPageIndex(0);
+                }}
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSortChange={(field, direction) => {
+                    setSortBy(field);
+                    setSortDir(direction);
+                }}
+            />
+            <AlertModal
+                isOpen={isOpen}
+                onClose={closeModal}
+                type="danger"
+                title="Tem certeza que deseja excluir?"
+                description="Essa ação não poderá ser desfeita."
+                onConfirm={confirmDelete}
+            />
+        </>
     );
 }

@@ -2,23 +2,91 @@
 import React from "react";
 import { useModal } from "@/hooks/useModal";
 import Button from "@/components/ui/button/Button";
-import Input from "@/components/form/input/InputField";
-import Label from "@/components/form/Label";
 import { Modal } from "@/components/ui/modal";
 import Image from "next/image";
 import { Pencil } from "lucide-react";
+import UserFormModal from "@/components/pages/users/UserFormModal";
 
-export default function UserMetaCard({ user }) {
+const InfoItem = ({ label, value }) => (
+    <div>
+      <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="text-sm font-medium text-gray-800 dark:text-white/90">{value ?? "Sem informações"}</p>
+    </div>
+);
+
+export default function UserMetaCard({ user, onUserUpdated }) {
   const { isOpen, openModal, closeModal } = useModal();
-  const [firstName, lastName] = user?.name
-      ? user.name.split(' ').length > 1
-          ? [user.name.split(' ')[0], user.name.split(' ').slice(1).join(' ')]
-          : [user.name, 'Sem informações']
-      : ['Sem informações', 'Sem informações'];
+  const perfilData = user?.perfilData || {};
 
   const handleSave = () => {
     console.log("Alterações salvas!");
     closeModal();
+  };
+
+  function formatCpf(value) {
+    if (!value) return '';
+    return value
+        .replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+
+  function formatPhone(value) {
+    if (!value) return '';
+    const digits = value.replace(/\D/g, '').padEnd(11, '0');
+
+    return digits
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d)/, '$1-$2')
+        .slice(0, 15);
+  }
+
+    const renderFields = () => {
+    switch (user?.profile) {
+      case "healthProfessional":
+        return (
+            <>
+              <InfoItem label="CPF" value={formatCpf(user?.cpf)} />
+              <InfoItem label="Sexo" value={user?.gender === 'M' ? 'Masculino' : 'Feminino'} />
+              <InfoItem label="Telefone" value={formatPhone(user?.phone)} />
+              <InfoItem label="E-mail" value={perfilData?.email} />
+              <InfoItem label="Especialidade" value={perfilData?.expertise} />
+            </>
+        );
+
+      case "researcher":
+        return (
+            <>
+              <InfoItem label="CPF" value={formatCpf(user?.cpf)} />
+              <InfoItem label="Sexo" value={user?.gender === 'M' ? 'Masculino' : 'Feminino'} />
+              <InfoItem label="Telefone" value={formatPhone(user?.phone)} />
+              <InfoItem label="Email" value={perfilData?.email} />
+              <InfoItem label="Instituição" value={perfilData?.institution} />
+              <InfoItem label="Área de Atuação" value={perfilData?.fieldOfStudy} />
+              <InfoItem label="Especialidade" value={perfilData?.expertise} />
+            </>
+        );
+
+      case "patient":
+        return (
+            <>
+              <InfoItem label="CPF" value={formatCpf(user?.cpf)} />
+              <InfoItem label="Sexo" value={user?.gender === 'M' ? 'Masculino' : 'Feminino'} />
+              <InfoItem label="Telefone" value={formatPhone(user?.phone)} />
+              <InfoItem label="Data de Nascimento" value={perfilData?.dateOfBirth} />
+              <InfoItem label="Idade" value={perfilData?.age} />
+              <InfoItem label="Escolaridade" value={perfilData?.educationLevel} />
+              <InfoItem label="Nível Socioeconômico" value={perfilData?.socioeconomicStatus} />
+              <InfoItem label="Peso" value={perfilData?.weight ? `${perfilData?.weight} kg` : null} />
+              <InfoItem label="Altura" value={perfilData?.height ? `${perfilData?.height} cm` : null} />
+              <InfoItem label="Histórico de Queda" value={perfilData?.downFall ? 'Sim' : 'Não'} />
+            </>
+        );
+
+      default:
+        return <p>Perfil desconhecido</p>;
+    }
   };
 
   return (
@@ -40,15 +108,13 @@ export default function UserMetaCard({ user }) {
                 </h4>
                 <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {user?.profile === "healthProfessional" ? "Profissional da saúde" : "Paciente"}
+                    {user?.profile === "healthProfessional"
+                        ? "Profissional da Saúde"
+                        : user?.profile === "researcher"
+                            ? "Pesquisador"
+                            : "Paciente"}
                   </p>
-                  {/*<div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>*/}
-                  {/*<p className="text-sm text-gray-500 dark:text-gray-400">*/}
-                  {/*  {user?.address?.city}, {user?.address?.state}*/}
-                  {/*</p>*/}
                 </div>
-              </div>
-              <div className="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
               </div>
             </div>
             <button
@@ -65,94 +131,23 @@ export default function UserMetaCard({ user }) {
             </h4>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-              <div>
-                <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Nome</p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {firstName}
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Sobrenome</p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {lastName}
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Email</p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.email ?? "Sem informações"}
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Telefone</p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.phone}
-                </p>
-              </div>
-
-              <div className="lg:col-span-2">
-                <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Cargo</p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  {user?.profile === "healthProfessional" ? "Profissional da saúde" : "Paciente"}
-                </p>
-              </div>
+              {renderFields()}
             </div>
           </div>
-
         </div>
 
-        <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-          <div
-              className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-            <div className="px-2 pr-14">
-              <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                Editar Informações Pessoais
-              </h4>
-              <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-                Atualize seus dados para manter seu perfil atualizado.
-              </p>
-            </div>
-
-            <form className="flex flex-col">
-              <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Nome</Label>
-                    <Input type="text" defaultValue={user?.firstName}/>
-                  </div>
-                  <div>
-                    <Label>Sobrenome</Label>
-                    <Input type="text" defaultValue={user?.lastName}/>
-                  </div>
-                  <div>
-                    <Label>Email</Label>
-                    <Input type="email" defaultValue={user?.email}/>
-                  </div>
-                  <div>
-                    <Label>Telefone</Label>
-                    <Input type="text" defaultValue={user?.phone}/>
-                  </div>
-                  <div className="lg:col-span-2">
-                    <Label>Cargo</Label>
-                    <Input type="text" defaultValue={user?.company?.title || ""}/>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-                <Button size="sm" variant="outline" onClick={closeModal}>
-                  Cancelar
-                </Button>
-                <Button size="sm" onClick={handleSave}>
-                  Salvar alterações
-                </Button>
-              </div>
-            </form>
-          </div>
-        </Modal>
-      </>
+        <UserFormModal
+          isOpen={isOpen}
+          onClose={closeModal}
+          userData={user}
+          onSuccess={(updatedData) => {
+              closeModal();
+              if (updatedData) {
+                  // Atualiza os dados no UserMetaCard:
+                  onUserUpdated?.(updatedData);
+              }
+          }}
+        />
+    </>
   );
 }

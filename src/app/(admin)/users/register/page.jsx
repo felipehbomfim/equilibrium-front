@@ -1,6 +1,6 @@
 'use client';
 
-import RegisterForm from '@/components/pages/users/RegisterForm';
+import UserForm from '@/components/pages/users/UserForm';
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Users, UserPlus } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export default function RegisterPage() {
                     </div>
                 </div>
                 <div className="border-t border-gray-100 p-5 dark:border-gray-800 sm:p-6">
-                    <RegisterForm />
+                    <UserForm />
                 </div>
             </div>
         </div>
