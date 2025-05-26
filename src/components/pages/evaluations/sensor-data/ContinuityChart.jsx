@@ -1,19 +1,36 @@
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 
-export default function T5STSChart({ idadePaciente, tempoPaciente, sexo, labelColor = '#000' }) {
+export default function ContinuityChart({ idadePaciente, tempoPaciente, tipo = 'TUG', labelColor = '#000' }) {
     const option = useMemo(() => {
-        const idades = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+        const referencias = {
+            TUG: [
+                { idade: 20, media: 6.0, desvio: 0.9 },
+                { idade: 30, media: 6.2, desvio: 1.0 },
+                { idade: 40, media: 6.5, desvio: 1.1 },
+                { idade: 50, media: 6.7, desvio: 1.2 },
+                { idade: 60, media: 8.5, desvio: 1.2 },
+                { idade: 70, media: 9.8, desvio: 1.4 },
+                { idade: 80, media: 11.5, desvio: 2.0 },
+            ],
+            '5TSTS': [
+                { idade: 20, media: 8.5, desvio: 1.1 },
+                { idade: 30, media: 9.1, desvio: 1.2 },
+                { idade: 40, media: 9.9, desvio: 1.5 },
+                { idade: 50, media: 10.7, desvio: 1.6 },
+                { idade: 60, media: 11.4, desvio: 2.1 },
+                { idade: 70, media: 13.6, desvio: 2.4 },
+                { idade: 80, media: 15.9, desvio: 3.0 },
+            ],
+        };
 
-        const referenciaHomens = [5.5, 6.0, 6.1, 7.6, 7.7, 8.4, 11.6, 16.7, 19.5];
-        const referenciaMulheres = [5.8, 6.0, 6.1, 7.6, 7.7, 12.7, 13.0, 17.2, 22.9];
-        const referenciaBase = sexo === 'F' ? referenciaMulheres : referenciaHomens;
-
-        const tempoRuim = referenciaBase.map(t => t + 5);
+        const dados = referencias[tipo] || referencias['TUG'];
+        const ideal = dados.map(d => [d.idade, d.media]);
+        const ruim = dados.map(d => [d.idade, d.media + 5]);
 
         return {
             title: {
-                text: 'Gráfico de continuidade',
+                text: `Gráfico de continuidade - ${tipo}`,
                 left: 'left',
                 textStyle: { color: labelColor },
             },
@@ -28,7 +45,7 @@ export default function T5STSChart({ idadePaciente, tempoPaciente, sexo, labelCo
                 name: 'Idade',
                 nameLocation: 'middle',
                 nameGap: 30,
-                min: 10,
+                min: 20,
                 max: 90,
                 interval: 10,
                 axisLabel: { color: labelColor },
@@ -52,14 +69,14 @@ export default function T5STSChart({ idadePaciente, tempoPaciente, sexo, labelCo
                 {
                     name: 'Tempo Ideal',
                     type: 'line',
-                    data: idades.map((idade, i) => [idade, referenciaBase[i]]),
+                    data: ideal,
                     smooth: true,
                     lineStyle: { color: 'green', width: 2 },
                 },
                 {
                     name: 'Tempo Ruim',
                     type: 'line',
-                    data: idades.map((idade, i) => [idade, tempoRuim[i]]),
+                    data: ruim,
                     smooth: true,
                     lineStyle: { color: 'red', width: 2 },
                 },
@@ -82,7 +99,7 @@ export default function T5STSChart({ idadePaciente, tempoPaciente, sexo, labelCo
                 }
             ],
         };
-    }, [idadePaciente, tempoPaciente, sexo, labelColor]);
+    }, [idadePaciente, tempoPaciente, tipo, labelColor]);
 
     return <ReactECharts option={option} style={{ height: 400 }} />;
 }

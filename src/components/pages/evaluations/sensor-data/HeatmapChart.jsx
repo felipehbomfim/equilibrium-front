@@ -17,6 +17,11 @@ export function HeatmapChart({ data, labelColor }) {
     });
 
     const option = useMemo(() => ({
+        title: {
+            text: `Gráfico de calor`,
+            left: 'left',
+            textStyle: { color: labelColor },
+        },
         tooltip: {
             position: 'top',
             formatter: params => {
