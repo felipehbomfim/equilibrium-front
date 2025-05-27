@@ -1,20 +1,18 @@
-"use client";
-import React from "react";
-import dynamic from "next/dynamic";
+'use client';
 
-// Importa o gráfico somente no client
-const ReactApexChart = dynamic(() => import("react-apexcharts"), {
-    ssr: false,
-});
+import React from 'react';
+import dynamic from 'next/dynamic';
 
-export default function StatisticsChart({ data }) {
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
+
+export default function RecentEvaluationsChart({ data }) {
     const categories = [
         "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
         "Jul", "Ago", "Set", "Out", "Nov", "Dez",
     ];
 
     const options = {
-        colors: ["#465FFF", "#9CB9FF"],
+        colors: ['#6366F1', '#10B981'],
         chart: {
             fontFamily: "Outfit, sans-serif",
             height: 310,
@@ -42,7 +40,12 @@ export default function StatisticsChart({ data }) {
             xaxis: { lines: { show: false } },
             yaxis: { lines: { show: true } },
         },
-        dataLabels: { enabled: false },
+        dataLabels: {
+            enabled: true,
+            y: {
+                formatter: (val) => `${val.toFixed(1)} s`
+            }
+        },
         tooltip: {
             enabled: true,
             y: {
@@ -76,7 +79,7 @@ export default function StatisticsChart({ data }) {
     const series = [
         {
             name: "Média 5TSTS",
-            data: data?.fiveTSTS || Array(12).fill(null),
+            data: data?.fiveTsts || Array(12).fill(null),
         },
         {
             name: "Média TUG",
@@ -88,12 +91,8 @@ export default function StatisticsChart({ data }) {
         <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
             <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
                 <div className="w-full">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Estatísticas de Desempenho
-                    </h3>
-                    <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-                        Média de tempo nos testes ao longo dos meses
-                    </p>
+                    <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Média Mensal das Avaliações</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">TUG e 5TSTS em segundos</p>
                 </div>
             </div>
 
