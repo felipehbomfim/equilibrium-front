@@ -6,6 +6,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Filter, List } from "lucide-react";
 import EvaluationsTable from "@/components/pages/evaluations/EvaluationsTable";
 import DatePicker from "@/components/form/input/DatePicker";
+import {useSession} from "next-auth/react";
 
 export default function EvaluationsContent() {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -15,8 +16,34 @@ export default function EvaluationsContent() {
     const [filterDate, setFilterDate] = useState('');
 
     const searchParams = useSearchParams();
-    const cpfFromUrl = searchParams.get("cpf") || '';
-
+    const { data: session, status } = useSession();
+    if (status === "loading") {
+        return (
+            <div className="p-2 space-y-4 animate-pulse">
+                <div className="h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+                <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="px-5 py-4 sm:px-6 sm:py-5">
+                        <div className="h-5 w-40 bg-gray-200 dark:bg-gray-800 rounded mb-4" />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            {[1, 2, 3].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
+                                    <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="border-t border-gray-100 dark:border-gray-800 p-5 sm:p-6 space-y-4">
+                        <div className="h-5 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+                        <div className="h-100 bg-gray-200 dark:bg-gray-800 rounded" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    const profile = session?.user?.profile;
+    const cpfFromSession = session?.user?.cpf;
+    const cpfFromUrl = profile === "patient" ? cpfFromSession || '' : searchParams.get("cpf") || '';
 
     return (
         <div className="p-2 space-y-4">

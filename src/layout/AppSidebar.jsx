@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {usePathname} from 'next/navigation';
 import {useSidebar} from '../context/SidebarContext';
-import {navItems, othersItems} from '../constants/MenuItens.js';
+import {useFilteredMenu} from '../constants/MenuItens.js';
 
 import {
     ChevronDownIcon,
@@ -22,6 +22,7 @@ const AppSidebar = () => {
     const subMenuRefs = useRef({});
 
     const isActive = useCallback((path) => path === pathname, [pathname]);
+    const { filteredNavItems, filteredOtherItems } = useFilteredMenu();
 
     const handleSubmenuToggle = (index, menuType) => {
         setOpenSubmenu((prev) =>
@@ -147,7 +148,7 @@ const AppSidebar = () => {
         let submenuMatched = false;
 
         ['main', 'others'].forEach((menuType) => {
-            const items = menuType === 'main' ? navItems : othersItems;
+            const items = menuType === 'main' ? filteredNavItems : filteredOtherItems;
             items.forEach((nav, index) => {
                 if (nav.subItems) {
                     nav.subItems.forEach((subItem) => {
@@ -254,24 +255,24 @@ const AppSidebar = () => {
                                     <Ellipsis/>
                                 )}
                             </h2>
-                            {renderMenuItems(navItems, 'main')}
+                            {renderMenuItems(filteredNavItems, 'main')}
                         </div>
-                        <div>
-                            <h2
-                                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-300 ${
-                                    !isExpanded && !isHovered
-                                        ? 'lg:justify-center'
-                                        : 'justify-start'
-                                }`}
-                            >
-                                {isExpanded || isHovered || isMobileOpen ? (
-                                    'Outros'
-                                ) : (
-                                    <Ellipsis/>
-                                )}
-                            </h2>
-                            {renderMenuItems(othersItems, 'others')}
-                        </div>
+                        {/*<div>*/}
+                        {/*    <h2*/}
+                        {/*        className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-300 ${*/}
+                        {/*            !isExpanded && !isHovered*/}
+                        {/*                ? 'lg:justify-center'*/}
+                        {/*                : 'justify-start'*/}
+                        {/*        }`}*/}
+                        {/*    >*/}
+                        {/*        {isExpanded || isHovered || isMobileOpen ? (*/}
+                        {/*            'Outros'*/}
+                        {/*        ) : (*/}
+                        {/*            <Ellipsis/>*/}
+                        {/*        )}*/}
+                        {/*    </h2>*/}
+                        {/*    {renderMenuItems(filteredNavItems, 'others')}*/}
+                        {/*</div>*/}
                     </div>
                 </nav>
             </div>

@@ -10,6 +10,7 @@ import {RadarChart} from "@/components/pages/evaluations/sensor-data/RadarChart"
 import {HeatmapChart} from "@/components/pages/evaluations/sensor-data/HeatmapChart";
 import ContinuityChart from "@/components/pages/evaluations/sensor-data/ContinuityChart";
 import { Award } from 'lucide-react';
+import {useSession} from "next-auth/react";
 
 export default function SensorDataPage() {
     const { id } = useParams();
@@ -18,6 +19,11 @@ export default function SensorDataPage() {
     const [evaluationDetails, setEvaluationDetails] = useState(null);
     const [labelColor, setLabelColor] = useState('#000');
     const [sensorData, setSensorData] = useState([]);
+    const { data: session, status } = useSession();
+    const isLoading = status === 'loading' || (id && (!evaluationDetails || !sensorData.length));
+    const user = session?.user;
+    const profile = session?.user?.profile;
+    const isPatient = profile === 'patient';
 
     const iconePorClassificacao = {
         "Excelente": <CheckCircle className="w-5 h-5 text-green-600" />,
@@ -386,6 +392,19 @@ export default function SensorDataPage() {
         return 'Crítico';
     }
 
+    if (isLoading) {
+        return (
+            <div className="p-2 space-y-4 animate-pulse">
+                <div className="h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+                <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
+                <div className="h-[320px] w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                <div className="h-[320px] w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                <div className="h-[240px] w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                <div className="h-[400px] w-full bg-gray-200 dark:bg-gray-800 rounded-xl" />
+            </div>
+        );
+    }
+
     return (
         <div className="p-2 space-y-4">
             <PageBreadcrumb
@@ -462,9 +481,8 @@ export default function SensorDataPage() {
                     </div>
                 </div>
             )}
-
-
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            {!isPatient && (
+                <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
                 <div className="px-5 py-4 sm:px-6 sm:py-5">
                     <div className="flex items-center justify-between">
                         <h3 className="flex items-center gap-2 text-base font-medium text-gray-800 dark:text-white/90">
@@ -515,6 +533,7 @@ export default function SensorDataPage() {
                     )}
                 </div>
             </div>
+            )}
         </div>
     );
 }

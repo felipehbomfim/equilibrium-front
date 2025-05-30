@@ -17,7 +17,8 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
   const user = session?.user;
-  const router = useRouter();
+  const profile = session?.user?.profile;
+  const isPatient = profile === 'patient';
 
   function toggleDropdown(e) {
     e.stopPropagation();
@@ -93,32 +94,22 @@ export default function UserDropdown() {
           </span>
           </div>
 
-          <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
-            <li>
-              <DropdownItem
-                  onItemClick={closeDropdown}
-                  tag="a"
-                  href="/users/profile/me"
-                  className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                <Pencil
-                    className="w-4 h-4 text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300"/>
-                Editar perfil
-              </DropdownItem>
-            </li>
-            <li>
-              <DropdownItem
-                  onItemClick={closeDropdown}
-                  tag="a"
-                  href="/profile"
-                  className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                <HelpCircle
-                    className="w-4 h-4 text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300"/>
-                Suporte
-              </DropdownItem>
-            </li>
-          </ul>
+          {!isPatient && (
+              <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
+                <li>
+                  <DropdownItem
+                      onItemClick={closeDropdown}
+                      tag="a"
+                      href="/users/profile/me"
+                      className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                  >
+                    <Pencil
+                        className="w-4 h-4 text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300"/>
+                    Editar perfil
+                  </DropdownItem>
+                </li>
+              </ul>
+          )}
 
           <button
               onClick={handleLogout}
