@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Radio from '@/components/form/input/Radio';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {getValidationSchema} from './validationSchema';
+import { getValidationSchema } from './ValidationSchema';
 import Button from '@/components/ui/button/Button';
 import AddressForm from "@/components/form/AddressForm";
 import InputField from "@/components/pages/users/components/InputField";
@@ -38,7 +38,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
     });
 
     useEffect(() => {
-        if (initialData && Object.keys(initialData).length > 0){
+        if (initialData && Object.keys(initialData).length > 0) {
             const perfilData = initialData.perfilData || {};
             const profileMapped = mapProfile(initialData.profile);
 
@@ -94,6 +94,8 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
             };
 
             if (profile === 'paciente') {
+                const [year, month, day] = formData.dateOfBirth.split('-');
+                const passwordNascimento = `${day}${month}${year}`;
                 pessoaPayload = {
                     ...pessoaPayload,
                     dateOfBirth: formData.dateOfBirth,
@@ -109,6 +111,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     height: formData.height ? parseFloat(formData.height) : null,
                     age: formData.dateOfBirth ? calcularIdade(formData.dateOfBirth) : null,
                     downFall: formData.downFall ? formData.downFall === true : false,
+                    password: mode === 'create' ? passwordNascimento : formData.password,
                 };
             }
 
@@ -240,14 +243,16 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     />
                     {errors.cpf && <span className="text-red-500 text-sm">{errors.cpf.message}</span>}
                 </div>
-                <InputField
-                    name="password"
-                    type="password"
-                    label="Senha"
-                    required={mode === 'create'}
-                    register={register}
-                    errors={errors}
-                />
+                {profile !== 'paciente' && (
+                    <InputField
+                        name="password"
+                        type="password"
+                        label="Senha"
+                        required={mode === 'create'}
+                        register={register}
+                        errors={errors}
+                    />
+                )}
                 <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Telefone</label>
                     <Controller
