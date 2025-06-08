@@ -85,8 +85,6 @@ export default function UsersTable({ refreshKey }) {
                         <div className="flex gap-2">
                             <a
                                 href={`/users/profile/${id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
                                 <Search size={14} />
                             </a>
