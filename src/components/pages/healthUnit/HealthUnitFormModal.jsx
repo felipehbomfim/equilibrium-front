@@ -51,8 +51,10 @@ export default function HealthUnitFormModal({ isOpen, onClose, onSuccess, initia
     async function submitForm(data) {
         try {
             if (initialData?.id) {
+                data.cep = data.address_cep;
                 await api.updateHealthUnit(initialData.id, data);
             } else {
+                data.cep = data.address_cep;
                 await api.createHealthUnit(data);
             }
             toast.success(`Sucesso ao ${initialData?.id ? "editar" : "adicionar"} unidade de saúde.`);

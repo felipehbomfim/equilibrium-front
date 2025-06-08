@@ -38,7 +38,7 @@ export default function AddressForm({ register, errors, setValue, watch, control
                         CEP <span className="text-red-500">*</span>
                     </label>
                     <Controller
-                        name="cep"
+                        name="address_cep"
                         control={control}
                         render={({ field }) => {
                             let safeValue = field.value ?? '';
