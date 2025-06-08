@@ -78,12 +78,6 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
         e.preventDefault();
         setLoading(true);
 
-        const isValid = await trigger();
-        if (!isValid) {
-            setLoading(false);
-            return;
-        }
-
         const formData = getValues();
 
         try {
@@ -96,6 +90,8 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
             if (profile === 'paciente') {
                 const [year, month, day] = formData.dateOfBirth.split('-');
                 const passwordNascimento = `${day}${month}${year}`;
+                 setValue('password', passwordNascimento);
+                formData.password = passwordNascimento;
                 pessoaPayload = {
                     ...pessoaPayload,
                     dateOfBirth: formData.dateOfBirth,
@@ -111,7 +107,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     height: formData.height ? parseFloat(formData.height) : null,
                     age: formData.dateOfBirth ? calcularIdade(formData.dateOfBirth) : null,
                     downFall: formData.downFall ? formData.downFall === true : false,
-                    password: mode === 'create' ? passwordNascimento : formData.password,
+                    password: passwordNascimento,
                 };
             }
 
@@ -131,6 +127,14 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     expertise: formData.expertise,
                     email: formData.email,
                 };
+            }
+
+            const isValid = await trigger();
+
+            if (!isValid) {
+                toast.error('Por favor, preencha todos os campos obrigatórios corretamente.');
+                setLoading(false);
+                return;
             }
 
             if (mode === 'create') {
@@ -248,7 +252,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                         name="password"
                         type="password"
                         label="Senha"
-                        required={mode === 'create'}
+                        required={mode === 'create' && profile !== 'paciente'}
                         register={register}
                         errors={errors}
                     />
