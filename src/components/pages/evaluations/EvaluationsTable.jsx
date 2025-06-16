@@ -22,18 +22,18 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
     const columns = generateColumns([
         { accessorKey: 'type', title: 'Tipo de Teste' },
         {
-            accessorKey: 'cpfHealthProfessional',
+            accessorKey: 'healthProfessional.name',
             title: 'Aplicador',
             cell: ({ row }) => {
-                const cpf = row.original.cpfHealthProfessional;
+                const cpf = row.original.healthProfessional.name;
                 return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
             },
         },
         {
-            accessorKey: 'cpfPatient',
+            accessorKey: 'pacient.name',
             title: 'Paciente',
             cell: ({ row }) => {
-                const cpf = row.original.cpfPatient;
+                const cpf = row.original.patient.name;
                 return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
             },
         },
@@ -111,8 +111,8 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
                 if (search) {
                     const searchLower = search.toLowerCase();
                     filtradas = filtradas.filter((evaluation) =>
-                        evaluation.cpfHealthProfessional.toLowerCase().includes(searchLower) ||
-                        evaluation.cpfPatient.toLowerCase().includes(searchLower) ||
+                        evaluation.healthProfessional.name.toLowerCase().includes(searchLower) ||
+                        evaluation.patient.name.toLowerCase().includes(searchLower) ||
                         evaluation.type.toLowerCase().includes(searchLower)
                     );
                 }
@@ -126,7 +126,7 @@ export default function EvaluationsTable({ refreshKey, filterType, filterApplica
                 if (filterApplicator) {
                     const applicatorLower = filterApplicator.toLowerCase();
                     filtradas = filtradas.filter((evaluation) =>
-                        evaluation.cpfHealthProfessional.toLowerCase().includes(applicatorLower)
+                        evaluation.healthProfessional.name.toLowerCase().includes(applicatorLower)
                     );
                 }
 
