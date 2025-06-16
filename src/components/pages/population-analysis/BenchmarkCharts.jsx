@@ -25,6 +25,21 @@ export default function PopulationAnalysisPage() {
         M: '#3498db', // azul
     };
 
+    const radarIndicatorsByType = {
+        '5TSTS': [
+            { name: 'Tempo', max: 60 },
+            { name: 'Potência', max: 20 },
+            { name: 'Fadiga', max: 10 },
+            { name: 'Simetria', max: 10 },
+        ],
+        'TUG': [
+            { name: 'Velocidade da marcha', max: 2 },
+            { name: 'Cadência', max: 150 },
+            { name: 'Equilíbrio', max: 10 },
+            { name: 'Transição', max: 20 },
+        ],
+    };
+
     useEffect(() => {
         const fetchAllData = async () => {
             try {
@@ -45,6 +60,104 @@ export default function PopulationAnalysisPage() {
 
         fetchAllData();
     }, []);
+
+    function getRadarDataByType(type) {
+        const grouped = groupBy(
+            evaluations.filter(e => e.type === type),
+            e => {
+                const birth = e.patient?.dateOfBirth;
+                if (!birth) return 'Indefinido';
+                return getAgeGroup(getAgeFromBirth(birth));
+            }
+        );
+
+        return Object.entries(grouped).map(([group, evals]) => {
+            const resultados = evals.map(e => calcularIndicadores(sensorDataByEval[e.id], type)).filter(Boolean);
+            if (!resultados.length) return { name: group, value: radarIndicatorsByType[type].map(() => 0) };
+
+            const soma = {};
+            resultados.forEach(radar => {
+                radar.forEach(({ name, value }) => {
+                    soma[name] = (soma[name] || 0) + value;
+                });
+            });
+
+            const media = radarIndicatorsByType[type].map(({ name }) =>
+                parseFloat((soma[name] / resultados.length).toFixed(2))
+            );
+
+            return { name: group, value: media };
+        });
+    }
+
+    function calcularIndicadores(sensorData, tipo = '5TSTS') {
+        if (!sensorData || sensorData.length === 0) return null;
+
+        const t0 = new Date(sensorData[0].time).getTime();
+        const tN = new Date(sensorData[sensorData.length - 1].time).getTime();
+        const tempo = (tN - t0) / 1000;
+
+        const accelNorm = sensorData.map(d =>
+            Math.sqrt(d.accel_x ** 2 + d.accel_y ** 2 + d.accel_z ** 2)
+        );
+
+        const media = accelNorm.reduce((sum, v) => sum + v, 0) / accelNorm.length;
+        const potencia = Math.sqrt(
+            accelNorm.reduce((sum, v) => sum + v ** 2, 0) / accelNorm.length
+        );
+        const fadiga = Math.sqrt(
+            accelNorm.reduce((sum, v) => sum + (v - media) ** 2, 0) / accelNorm.length
+        );
+
+        if (tipo === '5TSTS') {
+            const ladoPositivo = sensorData.filter(d => d.accel_x >= 0).length;
+            const ladoNegativo = sensorData.filter(d => d.accel_x < 0).length;
+            const simetria = Math.abs(ladoPositivo - ladoNegativo) / sensorData.length;
+
+            return [
+                { name: 'Tempo', value: Number(tempo.toFixed(2)) },
+                { name: 'Potência', value: Number(potencia.toFixed(2)) },
+                { name: 'Fadiga', value: Number(fadiga.toFixed(2)) },
+                { name: 'Simetria', value: Number((simetria * 10).toFixed(2)) },
+            ];
+        }
+
+        if (tipo === 'TUG') {
+            if (tempo <= 0.5) return null; // evita divisões erradas
+
+            const distancia = 3; // metros padrão
+            const velocidade = distancia / tempo;
+
+            let passos = 0;
+            let lastStepTime = t0;
+            for (let i = 1; i < accelNorm.length - 1; i++) {
+                const v = accelNorm[i];
+                const t = new Date(sensorData[i].time).getTime();
+                if (
+                    v > accelNorm[i - 1] &&
+                    v > accelNorm[i + 1] &&
+                    v > media * 1.1 &&
+                    (t - lastStepTime) > 300
+                ) {
+                    passos++;
+                    lastStepTime = t;
+                }
+            }
+
+            const cadencia = Math.min((passos / tempo) * 60, 200); // limitando
+            const equilibrio = 10 - Math.min(10, sensorData.reduce((acc, d) => acc + Math.abs(d.gyro_z), 0) / sensorData.length * 10);
+            const transicao = Math.min(Math.max(...sensorData.map(d => Math.abs(d.accel_z))), 20); // limitando
+
+            return [
+                { name: 'Velocidade da marcha', value: Number(velocidade.toFixed(2)) },
+                { name: 'Cadência', value: Number(cadencia.toFixed(2)) },
+                { name: 'Equilíbrio', value: Number(equilibrio.toFixed(1)) },
+                { name: 'Transição', value: Number(transicao.toFixed(2)) },
+            ];
+        }
+
+        return null;
+    }
 
     function getAgeFromBirth(dateOfBirth) {
         const today = new Date();
@@ -97,7 +210,7 @@ export default function PopulationAnalysisPage() {
             const t = e.totalTime.split(':').map(Number)[1] || 0;
             const A1 = Math.sqrt(data[0].accel_x ** 2 + data[0].accel_y ** 2 + data[0].accel_z ** 2);
             const A5 = Math.sqrt(data[data.length - 1].accel_x ** 2 + data[data.length - 1].accel_y ** 2 + data[data.length - 1].accel_z ** 2);
-            const fadiga = ((A1 - A5) / A1) * 100;
+            const fadiga = Math.abs((A1 - A5) / A1) * 100;
             const potencia = (0.4 * 9.8) / t;
 
             total.tempo += t;
@@ -140,33 +253,49 @@ export default function PopulationAnalysisPage() {
         ],
     };
 
-    const optionRadar = {
-        title: {
-            text: 'Indicadores médios por faixa etária',
-            left: 'center',
-            top: 0,
-        },
+    // const optionRadar = {
+    //     title: {
+    //         text: 'Indicadores médios por faixa etária',
+    //         left: 'center',
+    //         top: 0,
+    //     },
+    //     tooltip: {},
+    //     legend: {
+    //         data: Object.keys(groupedByAge),
+    //         top: 100,
+    //     },
+    //     radar: {
+    //         indicator: [
+    //             { name: 'Tempo', max: 20 },
+    //             { name: 'Potência', max: 5 },
+    //             { name: 'Fadiga', max: 100 },
+    //         ],
+    //     },
+    //     series: [
+    //         {
+    //             type: 'radar',
+    //             data: Object.entries(groupedByAge).map(([ageGroup, group]) => ({
+    //                 value: getRadarValues(group, sensorDataByEval),
+    //                 name: ageGroup,
+    //             })),
+    //         },
+    //     ],
+    // };
+
+    const optionRadar5TSTS = {
+        title: { text: 'Indicadores por faixa etária - 5TSTS', left: 'center', top: 0 },
         tooltip: {},
-        legend: {
-            data: Object.keys(groupedByAge),
-            top: 100,
-        },
-        radar: {
-            indicator: [
-                { name: 'Tempo', max: 20 },
-                { name: 'Potência', max: 5 },
-                { name: 'Fadiga', max: 100 },
-            ],
-        },
-        series: [
-            {
-                type: 'radar',
-                data: Object.entries(groupedByAge).map(([ageGroup, group]) => ({
-                    value: getRadarValues(group, sensorDataByEval),
-                    name: ageGroup,
-                })),
-            },
-        ],
+        legend: { data: getRadarDataByType('5TSTS').map(d => d.name), top: 100 },
+        radar: { indicator: radarIndicatorsByType['5TSTS'] },
+        series: [{ type: 'radar', data: getRadarDataByType('5TSTS') }]
+    };
+
+    const optionRadarTUG = {
+        title: { text: 'Indicadores por faixa etária - TUG', left: 'center', top: 0 },
+        tooltip: {},
+        legend: { data: getRadarDataByType('TUG').map(d => d.name), top: 100 },
+        radar: { indicator: radarIndicatorsByType['TUG'] },
+        series: [{ type: 'radar', data: getRadarDataByType('TUG') }]
     };
 
     if (loading) {
@@ -179,7 +308,8 @@ export default function PopulationAnalysisPage() {
                 <ReactECharts option={optionBar} style={{ height: 400 }} />
             </div>
             <div className="rounded-xl bg-white dark:bg-white/[0.02] p-4 border border-gray-200 dark:border-gray-800">
-                <ReactECharts option={optionRadar} style={{ height: 400 }} />
+                <ReactECharts option={optionRadar5TSTS} style={{ height: 400 }} />
+                <ReactECharts option={optionRadarTUG} style={{ height: 400 }} />
             </div>
         </div>
     );

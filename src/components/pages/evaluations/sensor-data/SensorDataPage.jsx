@@ -11,6 +11,7 @@ import {HeatmapChart} from "@/components/pages/evaluations/sensor-data/HeatmapCh
 import ContinuityChart from "@/components/pages/evaluations/sensor-data/ContinuityChart";
 import { Award } from 'lucide-react';
 import {useSession} from "next-auth/react";
+import {BarChart} from "@/components/pages/evaluations/sensor-data/BarChart";
 
 export default function SensorDataPage() {
     const { id } = useParams();
@@ -24,6 +25,7 @@ export default function SensorDataPage() {
     const user = session?.user;
     const profile = session?.user?.profile;
     const isPatient = profile === 'patient';
+    const [allEvaluations, setAllEvaluations] = useState([]);
 
     const iconePorClassificacao = {
         "Excelente": <CheckCircle className="w-5 h-5 text-green-600" />,
@@ -79,6 +81,18 @@ export default function SensorDataPage() {
         if (id) fetchData();
     }, [id]);
 
+
+    useEffect(() => {
+        const fetchAllEvaluations = async () => {
+            try {
+                const data = await api.getEvaluations();
+                setAllEvaluations(data);
+            } catch (error) {
+                console.error('Erro ao buscar todas as avaliações:', error);
+            }
+        };
+        fetchAllEvaluations();
+    }, []);
 
     const chartOptions = useMemo(() => {
         if (!sensorData.length) return { accel: null, gyro: null };
@@ -527,6 +541,15 @@ export default function SensorDataPage() {
                             {sensorData && (
                                 <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
                                     <HeatmapChart data={sensorData} labelColor="#000" />
+                                </div>
+                            )}
+                            {evaluationDetails && allEvaluations.length > 0 && (
+                                <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10">
+                                    <BarChart
+                                        evaluations={allEvaluations.filter(e => e.cpfPatient === evaluationDetails?.cpfPatient && e.type === evaluationDetails.type)}
+                                        currentId={evaluationDetails.id}
+                                        labelColor={labelColor}
+                                    />
                                 </div>
                             )}
                         </>

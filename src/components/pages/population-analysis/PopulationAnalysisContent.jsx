@@ -5,6 +5,7 @@ import { api } from '@/services/apiEvaluations';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import { Users } from 'lucide-react';
 import BenchmarkCharts from '@/components/pages/population-analysis/BenchmarkCharts';
+import {Skeleton} from "@mui/material";
 
 export default function PopulationAnalysisPage() {
     const [evaluations, setEvaluations] = useState([]);
@@ -146,7 +147,40 @@ export default function PopulationAnalysisPage() {
     const gruposIdade = useMemo(() => agruparPorFaixaEtaria(evaluations), [evaluations]);
 
     if (loading) {
-        return <div className="p-4">Carregando análise da população...</div>;
+        return (
+            <div className="p-2 space-y-4 animate-pulse">
+                <div className="h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+                <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="px-5 py-4 sm:px-6 sm:py-5">
+                        <div className="h-5 w-40 bg-gray-200 dark:bg-gray-800 rounded mb-4" />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            {[1, 2, 3, 4, 5].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="h-20 bg-gray-200 dark:bg-gray-800 rounded" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="px-5 py-4 sm:px-6 sm:py-5">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            {[1, 2, 3].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="h-20 bg-gray-200 dark:bg-gray-800 rounded" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="border-t border-gray-100 dark:border-gray-800 p-5 sm:p-6 space-y-4">
+                        <div className="h-5 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+                        <div className="h-[400px] bg-gray-200 dark:bg-gray-800 rounded" />
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
