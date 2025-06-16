@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Radio from '@/components/form/input/Radio';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {getValidationSchema} from './validationSchema';
+import { getValidationSchema } from './ValidationSchema';
 import Button from '@/components/ui/button/Button';
 import AddressForm from "@/components/form/AddressForm";
 import InputField from "@/components/pages/users/components/InputField";
@@ -38,7 +38,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
     });
 
     useEffect(() => {
-        if (initialData && Object.keys(initialData).length > 0){
+        if (initialData && Object.keys(initialData).length > 0) {
             const perfilData = initialData.perfilData || {};
             const profileMapped = mapProfile(initialData.profile);
 
@@ -78,12 +78,6 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
         e.preventDefault();
         setLoading(true);
 
-        const isValid = await trigger();
-        if (!isValid) {
-            setLoading(false);
-            return;
-        }
-
         const formData = getValues();
 
         try {
@@ -94,6 +88,10 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
             };
 
             if (profile === 'paciente') {
+                const [year, month, day] = formData.dateOfBirth.split('-');
+                const passwordNascimento = `${day}${month}${year}`;
+                 setValue('password', passwordNascimento);
+                formData.password = passwordNascimento;
                 pessoaPayload = {
                     ...pessoaPayload,
                     dateOfBirth: formData.dateOfBirth,
@@ -109,6 +107,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     height: formData.height ? parseFloat(formData.height) : null,
                     age: formData.dateOfBirth ? calcularIdade(formData.dateOfBirth) : null,
                     downFall: formData.downFall ? formData.downFall === true : false,
+                    password: passwordNascimento,
                 };
             }
 
@@ -128,6 +127,14 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     expertise: formData.expertise,
                     email: formData.email,
                 };
+            }
+
+            const isValid = await trigger();
+
+            if (!isValid) {
+                toast.error('Por favor, preencha todos os campos obrigatórios corretamente.');
+                setLoading(false);
+                return;
             }
 
             if (mode === 'create') {
@@ -233,6 +240,7 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                                     replacement={{ _: /\d/ }}
                                     value={safeValue}
                                     placeholder="CPF"
+                                    readOnly={mode === 'edit'}
                                     className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700"
                                 />
                             );
@@ -240,14 +248,16 @@ export default function UserForm({ onSuccess, initialData = {}, mode = 'create' 
                     />
                     {errors.cpf && <span className="text-red-500 text-sm">{errors.cpf.message}</span>}
                 </div>
-                <InputField
-                    name="password"
-                    type="password"
-                    label="Senha"
-                    required={mode === 'create'}
-                    register={register}
-                    errors={errors}
-                />
+                {profile !== 'paciente' && (
+                    <InputField
+                        name="password"
+                        type="password"
+                        label="Senha"
+                        required={mode === 'create' && profile !== 'paciente'}
+                        register={register}
+                        errors={errors}
+                    />
+                )}
                 <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Telefone</label>
                     <Controller

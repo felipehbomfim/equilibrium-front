@@ -78,19 +78,17 @@ export default function UsersTable({ refreshKey }) {
                 size: '80px',
                 cell: ({ row }) => {
                     const id = row.original.cpf;
+                    const profile = row.original.profile;
                     const { data: session } = useSession();
 
-                    console.log(session?.user?.profile);
                     return (
                         <div className="flex gap-2">
                             <a
                                 href={`/users/profile/${id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03]">
                                 <Search size={14} />
                             </a>
-                            {session?.user?.profile == "researcher" && (
+                            {profile !== "researcher" && (
                                 <a
                                     href={`/evaluations?cpf=${id}`}
                                     rel="noopener noreferrer"
@@ -98,7 +96,6 @@ export default function UsersTable({ refreshKey }) {
                                     <ListChecks size={14} />
                                 </a>
                             )}
-
                             {id !== session?.user?.id && (
                                 <button
                                     onClick={() => {
