@@ -551,7 +551,7 @@ export default function SensorDataPage() {
                                     <RadarChart indicators={indicadoresRadar} labelColor={labelColor} />
                                 </div>
                             )}
-                            {sensorData && (
+                            {sensorData && evaluationDetails.type == "5TSTS" && (
                                 <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
                                     <FadigaAreaChart potencias={potencias} labelColor={labelColor} />
                                 </div>
