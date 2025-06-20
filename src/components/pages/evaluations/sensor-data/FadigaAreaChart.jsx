@@ -16,7 +16,7 @@ export function FadigaAreaChart({ potencias, labelColor = '#333' }) {
 
     const option = useMemo(() => ({
         title: {
-            text: 'Fadiga Acumulada - 5TSTS',
+            text: 'Fadiga Acumulada',
             left: 'left',
             textStyle: { color: labelColor },
         },
