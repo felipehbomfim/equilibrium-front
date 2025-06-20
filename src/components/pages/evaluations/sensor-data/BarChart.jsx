@@ -26,7 +26,7 @@ export function BarChart({ evaluations, currentId, labelColor = '#000' }) {
     const option = {
         title: {
             text: 'Tempo de Testes do Paciente',
-            left: 'center',
+            left: 'left',
             textStyle: { color: labelColor },
         },
         tooltip: {

@@ -7,11 +7,11 @@ import { LineChart, ArrowLeft,  CheckCircle, Check, AlertTriangle, XCircle, Aler
 import ReactECharts from 'echarts-for-react';
 import { api } from "@/services/apiEvaluations";
 import {RadarChart} from "@/components/pages/evaluations/sensor-data/RadarChart";
-import {HeatmapChart} from "@/components/pages/evaluations/sensor-data/HeatmapChart";
 import ContinuityChart from "@/components/pages/evaluations/sensor-data/ContinuityChart";
 import { Award } from 'lucide-react';
 import {useSession} from "next-auth/react";
 import {BarChart} from "@/components/pages/evaluations/sensor-data/BarChart";
+import {FadigaAreaChart} from "@/components/pages/evaluations/sensor-data/FadigaAreaChart";
 
 export default function SensorDataPage() {
     const { id } = useParams();
@@ -419,6 +419,19 @@ export default function SensorDataPage() {
         );
     }
 
+    const limiar = 1.0;
+    const potencias = [];
+
+    for (let i = 1; i < sensorData.length - 1; i++) {
+        const prev = sensorData[i - 1].accel_z;
+        const curr = sensorData[i].accel_z;
+        const next = sensorData[i + 1].accel_z;
+
+        if (curr > prev && curr > next && curr > limiar) {
+            potencias.push(curr);
+        }
+    }
+
     return (
         <div className="p-2 space-y-4">
             <PageBreadcrumb
@@ -540,7 +553,7 @@ export default function SensorDataPage() {
                             )}
                             {sensorData && (
                                 <div className="border-t border-gray-200 p-5 dark:border-gray-600 sm:p-10 ">
-                                    <HeatmapChart data={sensorData} labelColor="#000" />
+                                    <FadigaAreaChart potencias={potencias} labelColor={labelColor} />
                                 </div>
                             )}
                             {evaluationDetails && allEvaluations.length > 0 && (

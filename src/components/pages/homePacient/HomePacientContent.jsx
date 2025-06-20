@@ -77,6 +77,7 @@ export default function HomePacientContent() {
                 // Classificação do último mês
                 const mesAtual = now.getMonth();
                 const classificacoesMes = classificacoes.filter(c => c.mes === mesAtual);
+
                 const classificacaoFinal = classificarDesempenhoGeral(classificacoesMes.map(c => c.classificacao));
                 setClassificacaoGeral(classificacaoFinal);
 
