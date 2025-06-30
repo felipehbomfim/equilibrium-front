@@ -1,6 +1,6 @@
-# Equilibrium Front
+# Plataforma Equilibrium 
 
-Frontend do projeto **Equilibrium**, construído com **Next.js**, **Tailwind CSS**, **NextAuth.js** e outras tecnologias modernas de front-end.
+Projeto **Equilibrium**, construído com **Next.js**, **Tailwind CSS**, **NextAuth.js** , **Android** , **Kotlin** e outras tecnologias modernas de desenvolvimento.
 
 ## 🔥 Tecnologias Utilizadas
 
@@ -12,8 +12,10 @@ Frontend do projeto **Equilibrium**, construído com **Next.js**, **Tailwind CSS
 - [ESLint + Prettier](https://eslint.org/)
 - [MUI Skeleton](https://mui.com/material-ui/react-skeleton/) – para loaders visuais
 - [Cookies / SessionStorage] – para simulação de autenticação temporária
+- [Kotlin](https://kotlinlang.org) - Linguagem de programação para o app mobile
+- [Android](https://www.android.com/intl/pt_br/) - Ambiente mobile
 
-## 📁 Estrutura de Pastas
+## 📁 Estrutura de Pastas front
 
 ```bash
 src/
@@ -41,8 +43,6 @@ npm install
 # Rode o projeto
 npm run dev
 
-# Inicie o db.json
-json-server --watch db.json --port 3001
 ```
 
 A aplicação estará disponível em `http://localhost:3000`.
@@ -59,6 +59,39 @@ Email: admin@admin.com
 Senha: 123456
 ```
 
+## 📱 Como Rodar o APK (Aplicativo Android)
+
+Siga os passos abaixo para instalar e executar o app Android no seu dispositivo:
+
+### 1. Ative a Depuração USB
+
+No seu celular Android:
+
+- Acesse **Configurações > Sobre o telefone**
+- Toque 7 vezes em **Número da versão** para ativar as **Opções de desenvolvedor**
+- Volte e acesse **Opções de desenvolvedor**, depois ative a opção **Depuração USB**
+
+### 2. Conecte o Dispositivo ao PC
+
+- Use um cabo USB
+- Confirme a permissão de depuração no celular, se for solicitado
+
+### 3. Instale o APK
+
+Você pode instalar o APK de duas formas:
+
+#### ✔️ Via Android Studio
+
+1. Abra o projeto Android no **Android Studio**
+2. Selecione o dispositivo conectado no topo da interface
+3. Clique em **Run ▶️** ou use `Shift + F10`
+
+#### ✔️ Via Terminal (ADB)
+
+1. Verifique se o dispositivo está visível:
+   ```bash
+   adb devices
+
 ## 🧩 Funcionalidades
 
 - Autenticação de usuários
@@ -73,6 +106,7 @@ Senha: 123456
 - [@felipehbomfim](https://github.com/felipehbomfim)
 - [@EduardoFelixNeto](https://github.com/eduardofelixneto)
 - [@VictorGabrielHilario](https://github.com/VictorGabrielHil)
+- [@JoaoVitor](https://github.com/JoaoV1821)
 ---
 
 ## 📄 Licença
