@@ -169,12 +169,6 @@ export default function SignInForm() {
                       Manter logado
                     </span>
                     </div>
-                    <Link
-                        href="/reset-password"
-                        className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                    >
-                      Esqueceu sua senha?
-                    </Link>
                   </div>
                   <div>
                     <Button
