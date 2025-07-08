@@ -34,6 +34,7 @@ export const api = {
             });
             return await response.json();
         } catch (error) {
+            console.error(`Erro ao cadastrar ${tipo}:`, error);
             throw new Error(`Erro ao cadastrar ${tipo}`);
         }
     },
@@ -48,6 +49,7 @@ export const api = {
             });
             return await response.json();
         } catch (error) {
+            console.error('Erro ao listar pessoas:', error);
             throw new Error('Erro ao listar pessoas');
         }
     },

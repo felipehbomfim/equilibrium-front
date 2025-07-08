@@ -1,7 +1,7 @@
 import API_URL from './api';
 
 export const api = {
-    async getEvaluations(params) {
+    async getEvaluations() {
         try {
             const response = await fetch(`${API_URL}/evaluation`, {
                 method: 'GET',
